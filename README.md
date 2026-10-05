@@ -1,0 +1,3383 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#2D5016">
+    <meta name="description" content="Sistema de evaluación de atalaje - La Peña Los Caballistas de Fuengirola">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,500&display=swap" rel="stylesheet">
+    <title>Concurso de Atalaje 2026 - La Peña Los Caballistas</title>
+
+    <link rel="manifest" href="data:application/json,{\"name\":\"Atalaje Peña Caballistas\",\"short_name\":\"Atalaje\",\"start_url\":\"/\",\"display\":\"standalone\",\"background_color\":\"#FFFFFF\",\"theme_color\":\"#2D5016\",\"icons\":[{\"src\":\"data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 192 192%27%3E%3Crect fill=%272D5016%27 width=%27192%27 height=%27192%27/%3E%3Ctext x=%2796%27 y=%27100%27 font-size=%2790%27 fill=%27%23D4AF37%27%3E🏆%3C/text%3E%3C/svg%3E\",\"sizes\":\"192x192\",\"type\":\"image/svg+xml\"}]}">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            touch-action: manipulation;
+        }
+
+        :root {
+            --primary: #2D5016;
+            --primary-dark: #1F3810;
+            --primary-light: #3D6B1F;
+            --secondary: #D4AF37;
+            --accent: #C0A080;
+            --text-dark: #2B2520;
+            --text-light: #6B6B6B;
+            --bg-light: #FFFFFF;
+            --bg-white: #FFFFFF;
+            --border: #E8E4E0;
+            --success: #27AE60;
+            --warning: #F39C12;
+            --danger: #E74C3C;
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.08);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.12);
+            --shadow-lg: 0 12px 32px rgba(0,0,0,0.15);
+            --radius: 8px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(212, 175, 55, 0.3); }
+            50% { box-shadow: 0 0 40px rgba(212, 175, 55, 0.6); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            background: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+            overflow-x: hidden;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            height: auto;
+            overflow-y: auto;
+        }
+
+        html {
+            width: 100%;
+            height: auto;
+            overflow-y: auto;
+        }
+
+        /* Login Page */
+        #loginPage {
+            position: relative;
+            width: 100%;
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 1rem;
+            overflow-y: auto;
+        }
+
+        .dev-credit {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 0.35rem 0.75rem 0.35rem 0.45rem;
+            border-radius: 999px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            text-decoration: none;
+            line-height: 1.15;
+            z-index: 2;
+        }
+        .dev-credit img { height: 30px; width: auto; display: block; }
+        .dev-credit span { font-size: 0.65rem; color: #555; text-align: left; }
+        .dev-credit strong { display: block; color: #e10f14; font-size: 0.72rem; letter-spacing: 0.04em; }
+        @media (max-width: 600px) {
+            #loginPage { padding-top: 3.75rem; }
+        }
+
+        #loginPage.hidden {
+            display: none;
+        }
+
+        .login-container {
+            background: var(--bg-white);
+            padding: 2rem 1.5rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+            width: 100%;
+            max-width: min(520px, calc(100% - 2rem));
+            text-align: center;
+            animation: fadeInUp 0.8s ease-out;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+        }
+
+        .logo-section {
+            margin-bottom: 1.2rem;
+        }
+
+        .logo {
+            font-size: 3.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .logo-text h1 {
+            font-size: 1.8rem;
+            color: var(--primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .logo-text p {
+            color: var(--accent);
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--secondary), transparent);
+            margin: 1rem 0;
+        }
+
+        .role-selector {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            margin-bottom: 1.2rem;
+            width: 100%;
+        }
+
+        .role-btn {
+            padding: 1.2rem;
+            border: 2px solid var(--border);
+            background: var(--bg-white);
+            color: var(--text-dark);
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            animation: fadeInUp 0.6s ease-out backwards;
+            min-height: 48px;
+            width: 100%;
+        }
+
+        .role-btn:nth-child(1) { animation-delay: 0.2s; }
+        .role-btn:nth-child(2) { animation-delay: 0.4s; }
+        .role-btn:nth-child(3) { animation-delay: 0.6s; }
+
+        .role-btn:hover {
+            border-color: var(--primary);
+            background: rgba(45, 80, 22, 0.08);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(45, 80, 22, 0.15);
+        }
+
+        .role-btn.selected {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .login-form {
+            display: none;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .login-form.active {
+            display: block;
+            animation: fadeInUp 0.5s ease-out forwards;
+            pointer-events: all;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.4rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            font-size: 0.9rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 16px;
+            font-family: inherit;
+            transition: var(--transition);
+            min-height: 44px;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(139, 0, 0, 0.1);
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 0.9rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-top: 0.75rem;
+        }
+
+        .btn-login:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-back {
+            background: var(--border);
+            color: var(--text-dark);
+            margin-top: 1rem;
+        }
+
+        .btn-back:hover {
+            background: var(--accent);
+            color: white;
+        }
+
+        .error-msg {
+            background: #FFE5E5;
+            color: var(--danger);
+            padding: 1rem;
+            border-radius: var(--radius);
+            margin-bottom: 1rem;
+            display: none;
+            border-left: 4px solid var(--danger);
+        }
+
+        .error-msg.show {
+            display: block;
+        }
+
+        /* Main App */
+        #app {
+            display: none;
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        #app.active {
+            display: block;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-md);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            width: 100%;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .header-title span {
+            font-size: 1.8rem;
+        }
+
+        .header-title div h1 {
+            font-size: 1.3rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .header-title div p {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+
+        .header-user {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .user-badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .btn-logout {
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid white;
+            color: white;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .btn-logout:hover {
+            background: white;
+            color: var(--primary);
+        }
+
+        /* Tabs */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1.5rem;
+            width: 100%;
+        }
+
+        .tabs-nav {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 1rem;
+        }
+
+        .tab-btn {
+            padding: 0.75rem 1.5rem;
+            background: transparent;
+            border: 2px solid transparent;
+            color: var(--text-light);
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            border-radius: 4px 4px 0 0;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .tab-btn:hover {
+            color: var(--primary);
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .tab-content {
+            display: none;
+            opacity: 0;
+            pointer-events: none;
+            width: 100%;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeInUp 0.4s ease-out forwards;
+            opacity: 1;
+            pointer-events: all;
+            width: 100%;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg-white);
+            border-radius: var(--radius);
+            padding: 2rem;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 1.5rem;
+            border-left: 4px solid var(--secondary);
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        .card h3 {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Judge Panel */
+        .judge-panel {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        .category-section {
+            background: var(--bg-white);
+            border-radius: var(--radius);
+            padding: 2rem;
+            box-shadow: var(--shadow-sm);
+            border-top: 4px solid var(--secondary);
+        }
+
+        .category-title {
+            font-size: 1.2rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--secondary);
+            font-weight: 600;
+        }
+
+        .participants-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.5rem;
+        }
+
+        .participants-table th {
+            background: var(--primary);
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .participants-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .participants-table tbody tr:hover {
+            background: var(--bg-light);
+        }
+
+        .score-input {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .score-input input {
+            min-width: 80px;
+            padding: 0.75rem;
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 16px;
+            font-weight: 600;
+            min-height: 44px;
+        }
+
+        .score-input input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .score-display {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary);
+            min-width: 40px;
+        }
+
+        /* Results */
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .result-card {
+            background: var(--bg-white);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            border-top: 4px solid var(--secondary);
+        }
+
+        .result-card h4 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-size: 1rem;
+        }
+
+        .result-item {
+            padding: 1rem;
+            background: var(--bg-light);
+            border-radius: var(--radius);
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid var(--secondary);
+        }
+
+        .result-item strong {
+            color: var(--primary);
+        }
+
+        .medal {
+            display: inline-block;
+            font-size: 1.5rem;
+            margin-right: 0.5rem;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--radius);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #229954;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #C0392B;
+        }
+
+        .btn-full {
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        /* Responsive - Mobile (max-width: 768px) */
+        @media (max-width: 768px) {
+            /* Header optimization */
+            .header-title span {
+                font-size: 1.5rem;
+            }
+
+            .header-title div h1 {
+                font-size: 1.1rem;
+            }
+
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .header-user {
+                width: 100%;
+                justify-content: center;
+                flex-direction: column;
+                font-size: 0.85rem;
+            }
+
+            /* Containers & Cards */
+            .container {
+                padding: 1rem;
+            }
+
+            .login-container {
+                padding: 1.5rem 1rem;
+                max-width: 100%;
+            }
+
+            .card {
+                padding: 1rem;
+                margin-bottom: 1rem;
+                border-radius: 6px;
+            }
+
+            .category-section {
+                padding: 1rem;
+                margin-bottom: 1rem;
+            }
+
+            /* Forms & Inputs */
+            .form-group {
+                margin-bottom: 1.25rem;
+            }
+
+            .form-group input {
+                font-size: 16px;
+                padding: 1rem;
+            }
+
+            /* Buttons */
+            .role-btn {
+                padding: 1rem;
+                font-size: 0.95rem;
+                min-height: 48px;
+            }
+
+            .btn-login {
+                padding: 0.875rem;
+                font-size: 0.95rem;
+                min-height: 44px;
+            }
+
+            .btn-back {
+                padding: 0.875rem;
+                font-size: 0.95rem;
+                min-height: 44px;
+            }
+
+            /* Tabs */
+            .tabs-nav {
+                flex-direction: column;
+                gap: 0.25rem;
+                padding-bottom: 0.5rem;
+                margin-bottom: 1.5rem;
+            }
+
+            .tab-btn {
+                width: 100%;
+                text-align: left;
+                padding: 0.85rem 1rem;
+                min-height: 44px;
+                font-size: 0.9rem;
+            }
+
+            /* Tables */
+            .participants-table {
+                font-size: 0.85rem;
+            }
+
+            .participants-table th {
+                padding: 0.75rem;
+                font-size: 0.8rem;
+            }
+
+            .participants-table td {
+                padding: 0.75rem;
+                font-size: 0.8rem;
+            }
+
+            .score-input input {
+                min-width: 70px;
+                padding: 0.65rem;
+                font-size: 14px;
+                min-height: 40px;
+            }
+
+            /* Content sections */
+            .content-hero {
+                padding: 1rem;
+                margin-bottom: 1rem;
+            }
+
+            .content-hero h2 {
+                font-size: 1.1rem;
+                margin-bottom: 0.75rem;
+            }
+
+            .content-hero p {
+                font-size: 0.9rem;
+                line-height: 1.5;
+            }
+
+            /* Grids */
+            .results-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .feature-item {
+                padding: 1rem;
+            }
+
+            /* Hover effects reduced on mobile */
+            .role-btn:hover {
+                transform: translateY(-2px);
+            }
+
+            .metric-card:hover {
+                transform: translateY(-2px);
+            }
+
+            .feature-item:hover {
+                transform: translateY(-2px);
+            }
+        }
+
+        /* Tablet Optimization (768px - 1023px) */
+        @media (min-width: 768px) and (max-width: 1023px) {
+            .container {
+                padding: 1.25rem;
+            }
+
+            .card {
+                padding: 1.5rem;
+            }
+
+            .category-section {
+                padding: 1.5rem;
+            }
+
+            .participants-table td {
+                padding: 0.85rem;
+            }
+
+            .tab-btn {
+                padding: 0.85rem 1.25rem;
+                font-size: 0.95rem;
+            }
+
+            .feature-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1.25rem;
+            }
+        }
+
+        /* Extra Small Screens (max-width: 480px) */
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 1.25rem 0.85rem;
+            }
+
+            .header-title span {
+                font-size: 1.2rem;
+            }
+
+            .header-title div h1 {
+                font-size: 0.95rem;
+            }
+
+            .role-btn {
+                padding: 0.9rem;
+                font-size: 0.9rem;
+            }
+
+            .btn-login {
+                padding: 0.8rem;
+                font-size: 0.9rem;
+            }
+
+            .form-group {
+                margin-bottom: 1rem;
+            }
+
+            .form-group input {
+                padding: 0.9rem;
+                font-size: 16px;
+            }
+
+            .tab-btn {
+                padding: 0.75rem 0.85rem;
+                font-size: 0.85rem;
+            }
+
+            .card {
+                padding: 0.85rem;
+            }
+
+            .category-section {
+                padding: 0.85rem;
+            }
+
+            .category-title {
+                font-size: 1.05rem;
+                margin-bottom: 1rem;
+            }
+
+            .content-hero {
+                padding: 0.85rem;
+            }
+
+            .content-hero h2 {
+                font-size: 1rem;
+            }
+
+            .content-hero p {
+                font-size: 0.85rem;
+            }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-light);
+        }
+
+        .success-msg {
+            background: #E8F8F5;
+            border-left: 4px solid var(--success);
+            padding: 1rem;
+            border-radius: var(--radius);
+            margin-bottom: 1rem;
+            color: #27AE60;
+            display: none;
+        }
+
+        .success-msg.show {
+            display: block;
+            animation: slideInRight 0.5s ease-out;
+        }
+
+        .card {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .metric-card {
+            animation: fadeInUp 0.6s ease-out;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .metric-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(45, 80, 22, 0.15);
+        }
+
+        .tab-btn {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .tab-btn:hover {
+            color: var(--secondary);
+        }
+
+        .tab-btn.active {
+            color: var(--secondary);
+            border-bottom-color: var(--secondary);
+            box-shadow: 0 2px 8px rgba(212, 175, 55, 0.2);
+        }
+
+        .btn-primary, .btn-success, .btn-danger {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary:hover, .btn-success:hover, .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(45, 80, 22, 0.2);
+        }
+
+        .btn-primary:active, .btn-success:active, .btn-danger:active {
+            transform: scale(0.98) translateY(-1px);
+        }
+
+        header {
+            animation: fadeInDown 0.6s ease-out;
+        }
+
+        .page-content {
+            animation: fadeInUp 0.8s ease-out 0.2s backwards;
+        }
+
+        table tbody tr {
+            transition: all 0.3s ease-out;
+        }
+
+        table tbody tr:hover {
+            background: rgba(212, 175, 55, 0.05);
+            transform: translateX(4px);
+        }
+
+        .tagline {
+            font-style: italic;
+            color: var(--text-light);
+            font-size: 0.95rem;
+            margin-top: 1rem;
+            opacity: 0.9;
+        }
+
+        .content-hero {
+            background: linear-gradient(135deg, rgba(45, 80, 22, 0.05) 0%, rgba(212, 175, 55, 0.03) 100%);
+            padding: 2.5rem;
+            border-radius: var(--radius);
+            border: 1px solid rgba(212, 175, 55, 0.1);
+            margin-bottom: 2rem;
+            animation: fadeInUp 0.8s ease-out;
+            text-align: center;
+        }
+
+        .content-hero h2 {
+            color: var(--primary);
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .content-hero p {
+            color: var(--text-light);
+            font-size: 1.1rem;
+            line-height: 1.7;
+            margin-bottom: 1rem;
+        }
+
+        .content-section {
+            background: var(--bg-white);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            animation: fadeInUp 0.6s ease-out;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .content-section:hover {
+            box-shadow: 0 12px 24px rgba(45, 80, 22, 0.1);
+            transform: translateY(-2px);
+            border-color: var(--secondary);
+        }
+
+        .content-section h3 {
+            color: var(--primary);
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid rgba(212, 175, 55, 0.2);
+            padding-bottom: 0.8rem;
+        }
+
+        .content-section p {
+            color: var(--text-dark);
+            line-height: 1.8;
+            font-size: 0.95rem;
+        }
+
+        .highlight-gold {
+            color: var(--secondary);
+            font-weight: 600;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .feature-item {
+            background: rgba(212, 175, 55, 0.05);
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            border-left: 4px solid var(--secondary);
+            animation: fadeInUp 0.6s ease-out;
+            transition: all 0.3s ease-out;
+        }
+
+        .feature-item:hover {
+            background: rgba(212, 175, 55, 0.08);
+            transform: translateY(-4px);
+        }
+
+        .feature-item strong {
+            color: var(--primary);
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 1.05rem;
+        }
+
+        .feature-item p {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        .ranking-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .ranking-table thead {
+            background: var(--primary);
+            color: white;
+        }
+
+        .ranking-table th {
+            padding: 1.2rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .ranking-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .ranking-table tbody tr {
+            transition: all 0.3s ease-out;
+        }
+
+        .ranking-table tbody tr:hover {
+            background: rgba(212, 175, 55, 0.05);
+        }
+
+        .rank-gold {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.2) 0%, rgba(212, 175, 55, 0.1) 100%);
+            border-left: 4px solid #FFD700;
+        }
+
+        .rank-silver {
+            background: linear-gradient(135deg, rgba(192, 192, 192, 0.15) 0%, rgba(192, 192, 192, 0.08) 100%);
+            border-left: 4px solid #C0C0C0;
+        }
+
+        .rank-bronze {
+            background: linear-gradient(135deg, rgba(205, 127, 50, 0.15) 0%, rgba(205, 127, 50, 0.08) 100%);
+            border-left: 4px solid #CD7F32;
+        }
+
+        .medal-icon {
+            font-size: 1.5rem;
+            margin-right: 0.5rem;
+        }
+
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-box {
+            background: rgba(45, 80, 22, 0.05);
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            border-left: 4px solid var(--primary);
+            text-align: center;
+        }
+
+        .stat-box .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-box .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .validation-banner {
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            border-left: 4px solid;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .validation-banner.success {
+            background: rgba(39, 174, 96, 0.1);
+            border-left-color: var(--success);
+        }
+
+        .validation-banner.warning {
+            background: rgba(243, 156, 18, 0.1);
+            border-left-color: var(--warning);
+        }
+
+        .validation-banner.error {
+            background: rgba(231, 76, 60, 0.1);
+            border-left-color: var(--danger);
+        }
+
+        .validation-icon {
+            font-size: 1.5rem;
+        }
+
+        .validation-text {
+            flex: 1;
+        }
+
+        .app-toast {
+            position: fixed;
+            left: 50%;
+            bottom: 1.5rem;
+            transform: translateX(-50%) translateY(20px);
+            max-width: min(92vw, 520px);
+            background: var(--primary-dark);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+            font-size: 0.95rem;
+            line-height: 1.5;
+            white-space: pre-line;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s, transform 0.3s;
+            z-index: 10000;
+        }
+
+        .app-toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .app-modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.45);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            z-index: 10001;
+        }
+
+        .app-modal {
+            background: white;
+            border-radius: 12px;
+            padding: 1.75rem;
+            max-width: 440px;
+            width: 100%;
+            box-shadow: var(--shadow-lg);
+            border-top: 4px solid var(--secondary);
+        }
+
+        .app-modal p {
+            white-space: pre-line;
+            color: var(--text-dark);
+            line-height: 1.6;
+            margin: 0 0 1.5rem 0;
+            white-space: pre-line;
+        }
+
+        .app-modal-actions {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: flex-end;
+        }
+        /* Menú del juez: ocupa todo el ancho en móvil, iPad y ordenador */
+        #judgeView .tabs-nav.judge-tabs {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.25rem;
+            flex-direction: row;
+        }
+        #judgeView .judge-tabs .tab-btn {
+            width: 100%;
+            text-align: center;
+            justify-content: center;
+            padding: 0.85rem 0.5rem;
+        }
+        @media (max-width: 480px) {
+            #judgeView .tabs-nav.judge-tabs { grid-template-columns: repeat(2, 1fr); }
+        }
+        /* Panel de Juez: tipografía elegante */
+        #judgeView .content-hero h2 {
+            font-family: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+            font-weight: 700;
+            font-size: 2.6rem;
+            letter-spacing: 0.02em;
+            margin-bottom: 0.5rem;
+        }
+        #judgeView .content-hero p {
+            font-family: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+            font-style: italic;
+            font-weight: 500;
+            font-size: 1.45rem;
+            line-height: 1.5;
+            color: #5a5a4a;
+            margin-bottom: 0;
+        }
+        @media (max-width: 600px) {
+            #judgeView .content-hero h2 { font-size: 2rem; }
+            #judgeView .content-hero p { font-size: 1.2rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Page -->
+    <div id="loginPage">
+        <div class="dev-credit" title="Desarrollado por Pincha Automatizaciones">
+            <img src="data:image/webp;base64,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" alt="Logo de Pincha Automatizaciones">
+            <span>Desarrollado por<strong>PINCHA AUTOMATIZACIONES</strong></span>
+        </div>
+        <div class="login-container">
+            <div class="logo-section">
+                <div class="logo"><img src="data:image/webp;base64,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" alt="Logo de La Peña Los Caballistas" style="width:120px;height:120px;"></div>
+                <div class="logo-text">
+                    <h1>La Peña Los Caballistas</h1>
+                    <p>Concurso de Atalaje 2026</p>
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div id="inspirationalPhraseContainer" style="margin-bottom: 2rem; min-height: 60px; display: flex; align-items: center; justify-content: center;">
+                <p id="inspirationalPhrase" style="font-style: italic; color: var(--text-light); font-size: 1rem; text-align: center; line-height: 1.6;"></p>
+            </div>
+
+            <div class="divider"></div>
+
+            <div id="roleSelection">
+                <p style="margin-bottom: 1.5rem; color: var(--text-light); font-weight: 500;">Selecciona tu rol para continuar</p>
+                <div class="role-selector">
+                    <button class="role-btn" onclick="app.selectRole('spectator')">
+                        Público
+                    </button>
+                    <button class="role-btn" onclick="app.selectRole('participant')">
+                        Participante
+                    </button>
+                    <button class="role-btn" onclick="app.selectRole('judge')">
+                        Juez
+                    </button>
+                </div>
+            </div>
+
+            <form id="loginFormContainer">
+                <div id="participantForm" class="login-form">
+                    <h3 style="color: var(--primary); margin-bottom: 1.5rem;">Acceso de Participante</h3>
+                    <div class="error-msg" id="errorMsg"></div>
+                    <div class="form-group">
+                        <label>Usuario</label>
+                        <input type="text" id="participantUsername" placeholder="Ej.: jesus1 (nombre + dorsal)" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Contraseña</label>
+                        <input type="password" id="participantPassword" placeholder="atalaje2026" required>
+                    </div>
+                    <div style="background: rgba(45, 80, 22, 0.05); padding: 0.75rem; border-radius: var(--radius); margin-bottom: 1rem; font-size: 0.85rem; color: var(--text-light); border-left: 2px solid var(--primary);">
+                        <strong style="color: var(--primary);">Acceso:</strong> Usuario: tu nombre y tu dorsal juntos, sin espacios ni tildes (p. ej.: jesus1) | Contraseña: <strong>atalaje2026</strong>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <button type="button" class="btn btn-login" onclick="app.loginParticipant()">Entrar</button>
+                        <button type="button" class="btn btn-login" style="background: rgba(45, 80, 22, 0.1); color: var(--primary); border: 2px solid var(--primary);" onclick="app.backToRoles()">Volver</button>
+                    </div>
+                </div>
+
+                <div id="judgeForm" class="login-form">
+                    <h3 style="color: var(--primary); margin-bottom: 1.5rem;">Acceso de Juez</h3>
+                    <p style="color: var(--text-light); margin-bottom: 1.5rem; font-size: 0.9rem;">Acceso restringido</p>
+                    <div class="error-msg" id="judgeErrorMsg"></div>
+                    <div class="form-group">
+                        <label>Usuario</label>
+                        <input type="text" id="judgeEmail" autocomplete="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Contraseña</label>
+                        <input type="password" id="judgePassword" autocomplete="current-password" required>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <button type="button" class="btn btn-login" onclick="app.loginJudge()">Acceder</button>
+                        <button type="button" class="btn btn-login" style="background: rgba(45, 80, 22, 0.1); color: var(--primary); border: 2px solid var(--primary);" onclick="app.backToRoles()">Volver</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="app">
+        <header>
+            <div class="header-content">
+                <div class="header-title">
+                    <div>
+                        <h1>La Peña Los Caballistas</h1>
+                        <p id="headerTagline" style="white-space: pre-line;">Tradición · Elegancia · Excelencia
+Fuengirola · 8 de octubre de 2026</p>
+                    </div>
+                </div>
+                <div class="header-user">
+                    <span id="userInfo"></span>
+                    <span class="user-badge" id="roleInfo"></span>
+                    <button class="btn-logout" data-i18n="logout" onclick="app.logout()">Cerrar sesión</button>
+                </div>
+            </div>
+        </header>
+
+        <div class="container">
+            <!-- JUDGE VIEW -->
+            <div id="judgeView" class="tab-content">
+                <div class="content-hero">
+                    <h2>Panel de Juez</h2>
+                    <p>Gracias por formar parte del jurado. Tu criterio da valor a este concurso.</p>
+                </div>
+
+                <div id="judgeSuccessMsg" class="success-msg">
+                    Evaluación guardada correctamente
+                </div>
+
+                <nav class="tabs-nav judge-tabs">
+                    <button class="tab-btn active" onclick="app.switchTab('evaluation')">Evaluación</button>
+                    <button class="tab-btn" onclick="app.switchTab('ranking')">Clasificación</button>
+                    <button class="tab-btn" onclick="app.switchTab('summary')">Resumen Final</button>
+                    <button class="tab-btn" onclick="app.switchTab('management')">Gestión</button>
+                </nav>
+
+                <div id="evaluation" class="tab-content active">
+                    <div class="card">
+                        <h3>Panel de Evaluación</h3>
+                        <p style="color: var(--text-light); margin-bottom: 1.5rem;">Selecciona un participante para evaluarlo en todos sus criterios</p>
+
+                        <select id="judgeParticipant" onchange="app.loadParticipantEvaluation()" style="width: 100%; padding: 0.75rem; border: 2px solid var(--border); border-radius: var(--radius); margin-bottom: 1.5rem; font-size: 1rem;">
+                            <option value="">-- Selecciona un participante --</option>
+                        </select>
+                    </div>
+
+                    <div id="participantEvalContent"></div>
+
+                </div>
+
+                <div id="ranking" class="tab-content">
+                    <div class="card">
+                        <h3>Clasificación de Participantes</h3>
+                        <p style="color: var(--text-light); margin-bottom: 1.5rem;">Clasificación provisional de cada categoría. Solo la ve el jurado hasta que se publiquen los resultados.</p>
+                        <div id="rankingContent"></div>
+                    </div>
+                </div>
+
+                <div id="summary" class="tab-content">
+                    <div class="card">
+                        <h3>Resumen Final de Resultados</h3>
+                        <p style="color: var(--text-light); margin-bottom: 1.5rem;">Comprueba que todos están evaluados antes de publicar</p>
+                        <div id="summaryContent"></div>
+                    </div>
+                </div>
+
+                <div id="management" class="tab-content">
+                    <div class="card">
+                        <h3>Gestión de Participantes</h3>
+                        <p style="color: var(--text-light); margin-bottom: 1.5rem;">Administra los participantes del concurso</p>
+
+                        <div style="background: rgba(45, 80, 22, 0.05); padding: 1.5rem; border-radius: var(--radius); margin-bottom: 2rem; border-left: 4px solid var(--primary);">
+                            <h4 style="margin: 0 0 1rem 0; color: var(--primary);">Añadir Nuevo Participante</h4>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                <input type="text" id="newParticipantNum" placeholder="Número (ej: 001)" style="padding: 0.75rem; border: 2px solid var(--border); border-radius: var(--radius); font-size: 1rem;">
+                                <input type="text" id="newParticipantName" placeholder="Nombre del Participante" style="padding: 0.75rem; border: 2px solid var(--border); border-radius: var(--radius); font-size: 1rem;">
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+                                <input type="text" id="newParticipantHorse" placeholder="Nombre del Caballo" style="padding: 0.75rem; border: 2px solid var(--border); border-radius: var(--radius); font-size: 1rem; display: none;">
+                                <select id="newParticipantCategory" style="padding: 0.75rem; border: 2px solid var(--border); border-radius: var(--radius); font-size: 1rem;">
+                                    <option value="">-- Selecciona Categoría --</option>
+                                    <option value="binomio-jinete">Mejor Binomio Jinete</option>
+                                    <option value="binomio-amazona">Mejor Binomio Amazona</option>
+                                    <option value="conjunto-grupa">Mejor Conjunto a la Grupa</option>
+                                    <option value="premio-vaquera">Premio Especial Esencia Vaquera</option>
+                                    <option value="jinete-infantil">Mejor Jinete Infantil</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-primary btn-full" onclick="app.addParticipant()" style="margin-top: 1rem;">
+                                + Añadir Participante
+                            </button>
+                        </div>
+
+                    </div>
+
+                    <div class="card">
+                        <h3>Credenciales de Participantes</h3>
+                        <p style="color: var(--text-light); margin-bottom: 1.5rem;">Usuario y contraseña de cada participante</p>
+                        <div id="credentialsTable" style="overflow-x: auto;"></div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Publicación de Resultados</h3>
+                        <p style="color: var(--text-light); margin-bottom: 1.5rem;">Controla la visibilidad de los resultados</p>
+
+                        <div id="publishStatusDiv" style="background: rgba(212, 175, 55, 0.05); padding: 1.5rem; border-radius: var(--radius); border-left: 4px solid var(--secondary); margin-bottom: 1.5rem;">
+                            <p style="margin: 0 0 1rem 0; font-weight: 600;">Estado: <span id="publishStatus" style="color: var(--danger);">No Publicados</span></p>
+                            <p style="margin: 0; font-size: 0.9rem; color: var(--text-light);">Los resultados serán visibles para participantes y público cuando se publiquen.</p>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <button class="btn btn-success btn-full" onclick="app.publishResults()">
+                                Publicar Resultados
+                            </button>
+                            <button class="btn btn-danger btn-full" onclick="app.unpublishResults()">
+                                Ocultar Resultados
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- PARTICIPANT VIEW -->
+            <div id="participantView" class="tab-content">
+                <div class="container">
+                    <div id="participantResultsContent"></div>
+                </div>
+
+            </div>
+
+            <!-- SPECTATOR VIEW -->
+            <div id="spectatorView" class="tab-content">
+                <!-- Language Header -->
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 1.5rem; background: white; border-bottom: 1px solid #E8E8E8;">
+                    <h2 style="margin: 0; font-size: 1.3rem; color: var(--primary); font-weight: 600;">La Peña Los Caballistas</h2>
+                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                        <button onclick="app.setLanguage('es')" style="padding: 0.4rem 0.8rem; background: transparent; border: 1px solid #E0E0E0; border-radius: 4px; cursor: pointer; font-weight: 500; font-size: 0.85rem; color: var(--primary);">ES</button>
+                        <button onclick="app.setLanguage('en')" style="padding: 0.4rem 0.8rem; background: transparent; border: 1px solid #E0E0E0; border-radius: 4px; cursor: pointer; font-weight: 500; font-size: 0.85rem; color: #999;">EN</button>
+                        <button onclick="app.logout()" style="padding: 0.4rem 1rem; background: transparent; border: 1px solid #E0E0E0; border-radius: 4px; cursor: pointer; font-weight: 500; font-size: 0.85rem; color: #999; margin-left: 0.5rem;" data-i18n="logout">Cerrar sesión</button>
+                    </div>
+                </div>
+
+                <!-- Navigation Tabs -->
+                <nav class="tabs-nav" style="border-bottom: 1px solid #E8E8E8; padding: 0 1.5rem;">
+                    <button class="tab-btn active" onclick="app.switchTab('publicResults')" style="padding: 1rem 1rem; color: var(--primary); border-bottom: 2px solid transparent; font-weight: 500; font-size: 0.95rem; text-transform: none;" data-i18n="tabResults">Resultados</button>
+                    <button class="tab-btn" onclick="app.switchTab('eventInfo')" style="padding: 1rem 1rem; color: #999; border-bottom: 2px solid transparent; font-weight: 500; font-size: 0.95rem; text-transform: none;" data-i18n="tabInfo">Información</button>
+                </nav>
+
+                <!-- Results Tab -->
+                <div id="publicResults" class="tab-content active" style="padding: 1.5rem;">
+                    <div style="max-width: 600px; margin: 0 auto;">
+                        <h3 style="color: var(--primary); margin-bottom: 1.5rem; font-weight: 600; font-size: 1.1rem;" data-i18n="finalRanking">Clasificación Final</h3>
+                        <div id="publicResultsContent" style="display: flex; flex-direction: column; gap: 1rem;"></div>
+                    </div>
+                </div>
+
+                <!-- Information Tab -->
+                <div id="eventInfo" class="tab-content" style="padding: 1.5rem;">
+                    <div style="max-width: 600px; margin: 0 auto;">
+                        <!-- Header -->
+                        <div style="margin-bottom: 2rem;">
+                            <p style="color: #999; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 0.5rem 0;" data-i18n="contestLabel">Concurso de Atalaje</p>
+                            <h1 style="color: var(--primary); font-size: 1.8rem; font-weight: 600; margin: 0 0 0.5rem 0;">La Peña Los Caballistas de Fuengirola</h1>
+                            <p style="color: #777; font-size: 0.95rem; margin: 0; line-height: 1.5;" id="aboutDesc" data-i18n="aboutDesc">Una peña ecuestre que desde 1980 trabaja por preservar la tradición del atalaje andaluz</p>
+                        </div>
+
+                        <!-- Welcome Banner -->
+                        <div style="background: linear-gradient(135deg, rgba(45, 80, 22, 0.05) 0%, rgba(212, 175, 55, 0.03) 100%); padding: 2rem; border-radius: 8px; border-left: 4px solid var(--secondary); margin-bottom: 2rem;">
+                            <p style="color: var(--primary); font-weight: 600; font-size: 1rem; margin: 0 0 0.5rem 0;" data-i18n="welcomeTitle">Bienvenidos a la Tradición Ecuestre Andaluza</p>
+                            <p style="color: #666; font-size: 0.95rem; line-height: 1.7; margin: 0;" data-i18n="welcomeText">El Concurso de Atalaje de la Peña Los Caballistas es una cita con la tradición ecuestre andaluza. Aquí se unen la pasión por los caballos y la dedicación de participantes que se han preparado a conciencia, cada uno con el orgullo de representar a su familia.</p>
+                        </div>
+
+                        <!-- History Section -->
+                        <div style="margin-bottom: 2rem;">
+                            <h2 style="color: var(--primary); font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem;" id="historyTitle" data-i18n="history">Historia</h2>
+                            <p style="color: #666; font-size: 0.95rem; line-height: 1.7; margin: 0;" id="historyText" data-i18n="historyText">La Peña Los Caballistas de Fuengirola es una asociación ecuestre con profundas raíces en la tradición andaluza. Desde 1980 cultivamos la pasión por el caballo y la excelencia en el atalaje, manteniendo vivos los valores de nobleza, precisión y respeto.</p>
+                            <div style="background: #F9F9F9; padding: 1.5rem; border-radius: 6px; margin-top: 1rem; border-left: 3px solid var(--secondary);">
+                                <p style="color: #666; font-size: 0.9rem; line-height: 1.7; margin: 0; font-style: italic;" data-i18n="historyQuote">Generaciones de caballistas y amazonas han compartido aquí su pasión por el atalaje, respetando siempre la tradición y el bienestar del caballo.</p>
+                            </div>
+                        </div>
+
+                        <!-- What We Evaluate -->
+                        <div style="margin-bottom: 2rem;">
+                            <h2 style="color: var(--primary); font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem;" id="whatWeSeekTitle" data-i18n="whatWeSeek">Lo que Evaluamos</h2>
+                            <div style="display: grid; grid-template-columns: 1fr; gap: 1rem;">
+                                <div style="padding: 1rem; border-left: 3px solid var(--secondary); background: #FAFAF8;">
+                                    <p style="color: var(--primary); font-weight: 600; font-size: 0.95rem; margin: 0 0 0.3rem 0;" data-i18n="evalImpresion">Impresión General</p>
+                                    <p style="color: #777; font-size: 0.9rem; margin: 0;" data-i18n="evalImpresionDesc">Valoración global del binomio y fidelidad a la usanza tradicional.</p>
+                                </div>
+                                <div style="padding: 1rem; border-left: 3px solid var(--secondary); background: #FAFAF8;">
+                                    <p style="color: var(--primary); font-weight: 600; font-size: 0.95rem; margin: 0 0 0.3rem 0;" data-i18n="evalArneses">Arneses</p>
+                                    <p style="color: #777; font-size: 0.9rem; margin: 0;" data-i18n="evalArnesesDesc">Limpieza, conservación y manufactura de los arneses, silla, cabezada, petral y embocadura.</p>
+                                </div>
+                                <div style="padding: 1rem; border-left: 3px solid var(--secondary); background: #FAFAF8;">
+                                    <p style="color: var(--primary); font-weight: 600; font-size: 0.95rem; margin: 0 0 0.3rem 0;" data-i18n="evalVestimenta">Vestimenta</p>
+                                    <p style="color: #777; font-size: 0.9rem; margin: 0;" data-i18n="evalVestimentaDesc">Calidad y presentación del atuendo.</p>
+                                </div>
+                                <div style="padding: 1rem; border-left: 3px solid var(--secondary); background: #FAFAF8;">
+                                    <p style="color: var(--primary); font-weight: 600; font-size: 0.95rem; margin: 0 0 0.3rem 0;" data-i18n="evalCaballo">Caballo</p>
+                                    <p style="color: #777; font-size: 0.9rem; margin: 0;" data-i18n="evalCaballoDesc">Estado general, higiene, herraje, trenzado y actitud del animal.</p>
+                                </div>
+                                <div style="padding: 1rem; border-left: 3px solid var(--secondary); background: #FAFAF8;">
+                                    <p style="color: var(--primary); font-weight: 600; font-size: 0.95rem; margin: 0 0 0.3rem 0;" data-i18n="evalJinete">Amazona/Jinete</p>
+                                    <p style="color: #777; font-size: 0.9rem; margin: 0;" data-i18n="evalJineteDesc">Posición en la silla, empleo de las ayudas, actitud, elegancia y compostura del jinete o la amazona.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Event Details -->
+                        <div style="margin-bottom: 2rem;">
+                            <h2 style="color: var(--primary); font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem;" id="eventDetailsTitle" data-i18n="eventDetails">Detalles del Evento</h2>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                <div style="background: #F9F9F9; padding: 1rem; border-radius: 6px; text-align: center;">
+                                    <p style="color: #999; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 0.5rem 0;" id="dateLabel" data-i18n="date">Fecha</p>
+                                    <p style="color: var(--primary); font-weight: 600; font-size: 0.95rem; margin: 0;" id="dateVal" data-i18n="dateVal">8 de octubre de 2026</p>
+                                </div>
+                                <div style="background: #F9F9F9; padding: 1rem; border-radius: 6px; text-align: center;">
+                                    <p style="color: #999; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 0.5rem 0;" id="locationLabel" data-i18n="location">Ubicación</p>
+                                    <p style="color: var(--primary); font-weight: 600; font-size: 0.95rem; margin: 0;" id="locationVal" data-i18n="locationVal">Recinto Ferial de Fuengirola, La Peña Los Caballistas</p>
+                                </div>
+                            </div>
+                            <div style="background: rgba(212, 175, 55, 0.08); padding: 1.5rem; border-radius: 6px; text-align: center; margin-top: 1rem; border-left: 4px solid var(--secondary);">
+                                <p style="color: var(--primary); font-weight: 600; font-size: 0.95rem; margin: 0 0 0.5rem 0;" data-i18n="officialEvent">Evento Oficial</p>
+                                <p style="color: #666; font-size: 0.9rem; margin: 0;" data-i18n="officialEventDesc">Organizado por la Peña Los Caballistas de Fuengirola con el máximo respeto por la tradición ecuestre.</p>
+                            </div>
+                        </div>
+
+                        <!-- Why Attend -->
+                        <div style="margin-bottom: 2rem;">
+                            <h2 style="color: var(--primary); font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem;" data-i18n="whyAttend">Por Qué Asistir</h2>
+                            <div style="display: grid; grid-template-columns: 1fr; gap: 1rem;">
+                                <div style="padding: 1.2rem; border-left: 3px solid var(--secondary); background: #FAFAF8; border-radius: 4px;">
+                                    <p style="color: var(--primary); font-weight: 600; font-size: 0.9rem; margin: 0 0 0.3rem 0;" data-i18n="why1">Tradición Andaluza</p>
+                                    <p style="color: #777; font-size: 0.85rem; margin: 0;" data-i18n="why1Desc">Disfruta de lo mejor de la tradición ecuestre andaluza.</p>
+                                </div>
+                                <div style="padding: 1.2rem; border-left: 3px solid var(--secondary); background: #FAFAF8; border-radius: 4px;">
+                                    <p style="color: var(--primary); font-weight: 600; font-size: 0.9rem; margin: 0 0 0.3rem 0;" data-i18n="why2">Espectáculo Elegante</p>
+                                    <p style="color: #777; font-size: 0.85rem; margin: 0;" data-i18n="why2Desc">Caballos bien presentados, atuendos cuidados al detalle y mucha elegancia.</p>
+                                </div>
+                                <div style="padding: 1.2rem; border-left: 3px solid var(--secondary); background: #FAFAF8; border-radius: 4px;">
+                                    <p style="color: var(--primary); font-weight: 600; font-size: 0.9rem; margin: 0 0 0.3rem 0;" data-i18n="why3">Comunidad Apasionada</p>
+                                    <p style="color: #777; font-size: 0.85rem; margin: 0;" data-i18n="why3Desc">Únete a otros amantes de la tradición y del mundo del caballo.</p>
+                                </div>
+                                <div style="padding: 1.2rem; border-left: 3px solid var(--secondary); background: #FAFAF8; border-radius: 4px;">
+                                    <p style="color: var(--primary); font-weight: 600; font-size: 0.9rem; margin: 0 0 0.3rem 0;" data-i18n="why4">Evento Organizado</p>
+                                    <p style="color: #777; font-size: 0.85rem; margin: 0;" data-i18n="why4Desc">Organizado con el máximo cuidado y respeto por la tradición.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Categories -->
+                        <div>
+                            <h2 style="color: var(--primary); font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem;" id="categoriesTitle" data-i18n="categories">Categorías de Competición</h2>
+                            <div style="display: grid; grid-template-columns: 1fr; gap: 0.75rem;">
+                                <div style="padding: 1rem; border: 1px solid #E8E8E8; border-radius: 6px;">
+                                    <p style="color: var(--primary); font-weight: 600; font-size: 0.9rem; margin: 0 0 0.2rem 0;" id="cat1" data-i18n="binomioJinete">Mejor Binomio Jinete</p>
+                                    <p style="color: #777; font-size: 0.8rem; margin: 0;" data-i18n="cat1Desc">Presentación del jinete y su caballo según la usanza tradicional. Trofeos para el 1.º, 2.º y 3.er puesto.</p>
+                                </div>
+                                <div style="padding: 1rem; border: 1px solid #E8E8E8; border-radius: 6px;">
+                                    <p style="color: var(--primary); font-weight: 600; font-size: 0.9rem; margin: 0 0 0.2rem 0;" id="cat2" data-i18n="binomioAmazona">Mejor Binomio Amazona</p>
+                                    <p style="color: #777; font-size: 0.8rem; margin: 0;" data-i18n="cat2Desc">Presentación de la amazona y su caballo según la usanza tradicional. Trofeos para el 1.º, 2.º y 3.er puesto.</p>
+                                </div>
+                                <div style="padding: 1rem; border: 1px solid #E8E8E8; border-radius: 6px;">
+                                    <p style="color: var(--primary); font-weight: 600; font-size: 0.9rem; margin: 0 0 0.2rem 0;" id="cat3" data-i18n="conjuntoGrupa">Mejor Conjunto a la Grupa</p>
+                                    <p style="color: #777; font-size: 0.8rem; margin: 0;" data-i18n="cat3Desc">Armonía, coordinación y colocación del conjunto. Trofeos para el 1.º, 2.º y 3.er puesto.</p>
+                                </div>
+                                <div style="padding: 1rem; border: 1px solid #E8E8E8; border-radius: 6px;">
+                                    <p style="color: var(--primary); font-weight: 600; font-size: 0.9rem; margin: 0 0 0.2rem 0;" id="cat4" data-i18n="premioEspecial">Premio Especial Esencia Vaquera</p>
+                                    <p style="color: #777; font-size: 0.8rem; margin: 0;" data-i18n="cat4Desc">Tradición, espíritu y esencia del vaquero andaluz. Trofeo único.</p>
+                                </div>
+                                <div style="padding: 1rem; border: 1px solid #E8E8E8; border-radius: 6px;">
+                                    <p style="color: var(--primary); font-weight: 600; font-size: 0.9rem; margin: 0 0 0.2rem 0;" id="cat5" data-i18n="jineteInfantil">Mejor Jinete Infantil</p>
+                                    <p style="color: #777; font-size: 0.8rem; margin: 0;" data-i18n="cat5Desc">El futuro de la tradición ecuestre. Trofeo único.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.alert = (msg) => app.notify(String(msg));
+
+        // ===== Conexión con Supabase (base de datos compartida) =====
+        const SUPABASE_URL = 'https://bmzhoprizwrmdgnutzvk.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_lsgDVKtc1BDKhXAn8WKfFQ_BQxZRuOr';
+        const JUDGE_EMAIL_DOMAIN = '@atalaje-2026.app';
+
+        const api = {
+            session: null,
+            loadSession() {
+                try { this.session = JSON.parse(localStorage.getItem('atalaje-auth') || 'null'); } catch (e) { this.session = null; }
+                return this.session;
+            },
+            storeSession(s) {
+                this.session = s;
+                try { s ? localStorage.setItem('atalaje-auth', JSON.stringify(s)) : localStorage.removeItem('atalaje-auth'); } catch (e) {}
+            },
+            async fetchJson(url, options) {
+                const ctrl = new AbortController();
+                const timer = setTimeout(() => ctrl.abort(), 15000);
+                let r;
+                try {
+                    r = await fetch(url, Object.assign({}, options, { signal: ctrl.signal }));
+                } catch (e) {
+                    const err = new Error('network'); err.network = true; throw err;
+                } finally { clearTimeout(timer); }
+                const text = await r.text();
+                let data = null;
+                try { data = text ? JSON.parse(text) : null; } catch (e) { data = text; }
+                if (!r.ok) {
+                    const err = new Error((data && (data.message || data.msg || data.error_description)) || ('HTTP ' + r.status));
+                    err.status = r.status; err.code = data && data.code; throw err;
+                }
+                return data;
+            },
+            async auth(body, grant) {
+                const d = await this.fetchJson(`${SUPABASE_URL}/auth/v1/token?grant_type=${grant}`, {
+                    method: 'POST', headers: { apikey: SUPABASE_KEY, 'Content-Type': 'application/json' }, body: JSON.stringify(body)
+                });
+                const s = { access_token: d.access_token, refresh_token: d.refresh_token,
+                            expires_at: Date.now() + (d.expires_in || 3600) * 1000, user: d.user };
+                this.storeSession(s);
+                return s;
+            },
+            signIn(email, password) { return this.auth({ email, password }, 'password'); },
+            refresh() {
+                if (!this.session || !this.session.refresh_token) { const e = new Error('nosession'); e.status = 401; return Promise.reject(e); }
+                if (!this._refreshing) {
+                    this._refreshing = this.auth({ refresh_token: this.session.refresh_token }, 'refresh_token')
+                        .finally(() => { this._refreshing = null; });
+                }
+                return this._refreshing;
+            },
+            signOut() {
+                const s = this.session;
+                this.storeSession(null);
+                if (s && s.access_token) {
+                    fetch(`${SUPABASE_URL}/auth/v1/logout`, { method: 'POST', headers: { apikey: SUPABASE_KEY, Authorization: 'Bearer ' + s.access_token } }).catch(() => {});
+                }
+            },
+            async request(path, { method = 'GET', body, auth = false, prefer } = {}) {
+                if (auth && this.session && Date.now() > this.session.expires_at - 60000) await this.refresh();
+                const build = () => {
+                    const headers = { apikey: SUPABASE_KEY, 'Content-Type': 'application/json' };
+                    if (auth && this.session) headers.Authorization = 'Bearer ' + this.session.access_token;
+                    if (prefer) headers.Prefer = prefer;
+                    return { method, headers, body: body !== undefined ? JSON.stringify(body) : undefined };
+                };
+                try {
+                    return await this.fetchJson(SUPABASE_URL + path, build());
+                } catch (e) {
+                    if (e.status === 401 && auth && this.session) {
+                        await this.refresh();
+                        return await this.fetchJson(SUPABASE_URL + path, build());
+                    }
+                    throw e;
+                }
+            },
+            rpc(fn, args) { return this.request('/rest/v1/rpc/' + fn, { method: 'POST', body: args || {} }); }
+        };
+
+        const app = {
+            currentLanguage: 'es',
+
+            translations: {
+                es: {
+                    logout: 'Cerrar sesión', tabResults: 'Resultados', tabInfo: 'Información', finalRanking: 'Clasificación Final',
+                    contestLabel: 'Concurso de Atalaje',
+                    aboutDesc: 'Una peña ecuestre que desde 1980 trabaja por preservar la tradición del atalaje andaluz',
+                    welcomeTitle: 'Bienvenidos a la Tradición Ecuestre Andaluza',
+                    welcomeText: 'El Concurso de Atalaje de la Peña Los Caballistas es una cita con la tradición ecuestre andaluza. Aquí se unen la pasión por los caballos y la dedicación de participantes que se han preparado a conciencia, cada uno con el orgullo de representar a su familia.',
+                    history: 'Historia',
+                    historyText: 'La Peña Los Caballistas de Fuengirola es una asociación ecuestre con profundas raíces en la tradición andaluza. Desde 1980 cultivamos la pasión por el caballo y la excelencia en el atalaje, manteniendo vivos los valores de nobleza, precisión y respeto.',
+                    historyQuote: 'Generaciones de caballistas y amazonas han compartido aquí su pasión por el atalaje, respetando siempre la tradición y el bienestar del caballo.',
+                    whatWeSeek: 'Lo que Evaluamos',
+                    evalImpresion: 'Impresión General', evalImpresionDesc: 'Valoración global del binomio y fidelidad a la usanza tradicional.',
+                    evalArneses: 'Arneses', evalArnesesDesc: 'Limpieza, conservación y manufactura de los arneses, silla, cabezada, petral y embocadura.',
+                    evalVestimenta: 'Vestimenta', evalVestimentaDesc: 'Calidad y presentación del atuendo.',
+                    evalCaballo: 'Caballo', evalCaballoDesc: 'Estado general, higiene, herraje, trenzado y actitud del animal.',
+                    evalJinete: 'Amazona/Jinete', evalJineteDesc: 'Posición en la silla, empleo de las ayudas, actitud, elegancia y compostura del jinete o la amazona.',
+                    eventDetails: 'Detalles del Evento', date: 'Fecha', dateVal: '8 de octubre de 2026', location: 'Ubicación', locationVal: 'Recinto Ferial de Fuengirola, La Peña Los Caballistas',
+                    officialEvent: 'Evento Oficial', officialEventDesc: 'Organizado por la Peña Los Caballistas de Fuengirola con el máximo respeto por la tradición ecuestre.',
+                    whyAttend: 'Por Qué Asistir',
+                    why1: 'Tradición Andaluza', why1Desc: 'Disfruta de lo mejor de la tradición ecuestre andaluza.',
+                    why2: 'Espectáculo Elegante', why2Desc: 'Caballos bien presentados, atuendos cuidados al detalle y mucha elegancia.',
+                    why3: 'Comunidad Apasionada', why3Desc: 'Únete a otros amantes de la tradición y del mundo del caballo.',
+                    why4: 'Evento Organizado', why4Desc: 'Organizado con el máximo cuidado y respeto por la tradición.',
+                    categories: 'Categorías de Competición',
+                    binomioJinete: 'Mejor Binomio Jinete', cat1Desc: 'Presentación del jinete y su caballo según la usanza tradicional. Trofeos para el 1.º, 2.º y 3.er puesto.',
+                    binomioAmazona: 'Mejor Binomio Amazona', cat2Desc: 'Presentación de la amazona y su caballo según la usanza tradicional. Trofeos para el 1.º, 2.º y 3.er puesto.',
+                    conjuntoGrupa: 'Mejor Conjunto a la Grupa', cat3Desc: 'Armonía, coordinación y colocación del conjunto. Trofeos para el 1.º, 2.º y 3.er puesto.',
+                    premioEspecial: 'Premio Especial Esencia Vaquera', cat4Desc: 'Tradición, espíritu y esencia del vaquero andaluz. Trofeo único.',
+                    jineteInfantil: 'Mejor Jinete Infantil', cat5Desc: 'El futuro de la tradición ecuestre. Trofeo único.',
+                    resultsTitle: 'RESULTADOS DEL CONCURSO',
+                    resultsPending: 'Los resultados estarán disponibles cuando el jurado los publique.',
+                    noResultsYet: 'Aún no hay resultados disponibles.', loading: 'Cargando resultados...',
+                    noEvalCat: 'Sin evaluaciones en esta categoría',
+                    thPos: 'Posición', thDorsal: 'Dorsal', thName: 'Participante', thScore: 'Puntuación', noName: 'Sin nombre'
+                },
+                en: {
+                    logout: 'Log out', tabResults: 'Results', tabInfo: 'Information', finalRanking: 'Final Ranking',
+                    contestLabel: 'Atalaje Competition',
+                    aboutDesc: 'An equestrian club that, since 1980, has worked to preserve the Andalusian tradition of atalaje: the turnout of horse and rider',
+                    welcomeTitle: 'Welcome to Andalusian Equestrian Tradition',
+                    welcomeText: 'The Peña Los Caballistas Atalaje Competition is a celebration of Andalusian equestrian tradition. It brings together a passion for horses and the dedication of riders who have prepared carefully for this day, each one proud to represent their family.',
+                    history: 'History',
+                    historyText: 'Peña Los Caballistas is an equestrian association in Fuengirola with deep roots in Andalusian tradition. Since 1980 we have nurtured a love of horses and excellence in atalaje, keeping alive the values of nobility, precision and respect.',
+                    historyQuote: 'Generations of horsemen and horsewomen have shared their passion for atalaje here, always respecting tradition and the welfare of the horse.',
+                    whatWeSeek: 'What We Judge',
+                    evalImpresion: 'Overall Impression', evalImpresionDesc: 'Overall assessment of the pair and faithfulness to traditional custom.',
+                    evalArneses: 'Tack', evalArnesesDesc: 'Cleanliness, condition and craftsmanship of the tack: saddle, bridle, breastplate and bit.',
+                    evalVestimenta: 'Attire', evalVestimentaDesc: 'Quality and presentation of the attire.',
+                    evalCaballo: 'Horse', evalCaballoDesc: 'General condition, grooming, shoeing, plaiting and the horse\'s behaviour.',
+                    evalJinete: 'Rider', evalJineteDesc: 'Position in the saddle, use of the aids, attitude, elegance and composure of the rider.',
+                    eventDetails: 'Event Details', date: 'Date', dateVal: '8 October 2026', location: 'Location', locationVal: 'Fuengirola Fairground (Recinto Ferial), Peña Los Caballistas',
+                    officialEvent: 'Official Event', officialEventDesc: 'Organised by Peña Los Caballistas in Fuengirola with the utmost respect for equestrian tradition.',
+                    whyAttend: 'Why Attend',
+                    why1: 'Andalusian Tradition', why1Desc: 'Enjoy the best of Andalusian equestrian tradition.',
+                    why2: 'An Elegant Spectacle', why2Desc: 'Well-presented horses, carefully chosen attire and plenty of elegance.',
+                    why3: 'A Passionate Community', why3Desc: 'Join fellow lovers of tradition and the world of horses.',
+                    why4: 'A Carefully Run Event', why4Desc: 'Organised with great care and respect for tradition.',
+                    categories: 'Competition Categories',
+                    binomioJinete: 'Best Horseman & Horse', cat1Desc: 'Turnout of the horseman and his horse in the traditional style. Trophies for 1st, 2nd and 3rd place.',
+                    binomioAmazona: 'Best Horsewoman & Horse', cat2Desc: 'Turnout of the horsewoman and her horse in the traditional style. Trophies for 1st, 2nd and 3rd place.',
+                    conjuntoGrupa: 'Best Pillion Pair (a la grupa)', cat3Desc: 'Harmony, coordination and positioning of the rider and pillion passenger. Trophies for 1st, 2nd and 3rd place.',
+                    premioEspecial: 'Special Award: Vaquero Spirit', cat4Desc: 'Tradition, spirit and essence of the Andalusian vaquero. Single trophy.',
+                    jineteInfantil: 'Best Young Rider', cat5Desc: 'The future of equestrian tradition. Single trophy.',
+                    resultsTitle: 'COMPETITION RESULTS',
+                    resultsPending: 'Results will be available once the jury publishes them.',
+                    noResultsYet: 'No results available yet.', loading: 'Loading results...',
+                    noEvalCat: 'No entries scored in this category',
+                    thPos: 'Position', thDorsal: 'No.', thName: 'Rider', thScore: 'Score', noName: 'No name'
+                }
+            },
+
+            t(key) {
+                const lang = this.currentLanguage || 'es';
+                return (this.translations[lang] && this.translations[lang][key]) || this.translations.es[key] || key;
+            },
+
+
+            // Sample authorized participants
+            authorizedParticipants: {
+                '001': 'pass001',
+                '002': 'pass002',
+                '003': 'pass003'
+            },
+
+            SECTION_IDS: ['impresion', 'arneses', 'vestimenta', 'presentacion', 'amazona'],
+
+            getScoreData(p) {
+                return p.scores || null;
+            },
+
+            // Puntuación final (media de las 5 secciones). 0 si la evaluación no está completa.
+            getFinalScore(p) {
+                const d = this.getScoreData(p);
+                if (!d) return 0;
+                let total = 0;
+                for (const sec of this.SECTION_IDS) {
+                    if (!d[sec] || !(d[sec].average > 0)) return 0;
+                    total += d[sec].average;
+                }
+                return total / this.SECTION_IDS.length;
+            },
+
+            // Datos guardados con versiones antiguas: la sección del caballo se llamaba 'caballo'
+            migrateScores(obj) {
+                if (obj && obj.caballo && !obj.presentacion) obj.presentacion = obj.caballo;
+                if (obj && obj.caballo) delete obj.caballo;
+            },
+
+            CATEGORIES: [
+                { id: 'binomio-jinete', name: 'Mejor Binomio Jinete', single: false },
+                { id: 'binomio-amazona', name: 'Mejor Binomio Amazona', single: false },
+                { id: 'conjunto-grupa', name: 'Mejor Conjunto a la Grupa', single: false },
+                { id: 'premio-vaquera', name: 'Premio Especial Esencia Vaquera', single: true },
+                { id: 'jinete-infantil', name: 'Mejor Jinete Infantil', single: true }
+            ],
+
+            currentUser: null,
+            currentRole: null,
+            currentParticipant: null,
+            currentJudgeEvalParticipant: null,
+            scores: {},
+            finalized: false,
+            participants: [],
+            resultsPublished: false,
+
+            // Frases inspiradoras sobre atalaje y tradición ecuestre
+            inspirationalPhrase: {
+                es: "Tradición, elegancia y respeto por el caballo",
+                en: "Tradition, elegance and respect for the horse"
+            },
+
+            getMainPhrase(lang = 'es') {
+                return this.inspirationalPhrase[lang];
+            },
+
+            init() {
+                this.participants = [];
+                this.scores = {};
+                this.setupEventListeners();
+                this.displayRandomPhrase();
+                this.restoreSession();
+                document.addEventListener('visibilitychange', () => { if (!document.hidden) this.refreshRemote(); });
+            },
+
+            // ----- Datos remotos -----
+            rowToParticipant(r) {
+                const p = { id: String(r.id), name: r.name, category: r.category, username: r.username || '',
+                    scores: r.scores || null, strongPoints: r.strong_points || '', improvementPoints: r.improvement_points || '',
+                    evaluated: !!r.evaluated };
+                if (p.scores) this.migrateScores(p.scores);
+                return p;
+            },
+
+            participantToRow(p) {
+                return { id: p.id, name: p.name, category: p.category, username: p.username,
+                    scores: p.scores || null, strong_points: p.strongPoints || '', improvement_points: p.improvementPoints || '',
+                    evaluated: !!p.evaluated, updated_at: new Date().toISOString() };
+            },
+
+            async loadJudgeData() {
+                const [rows, settings] = await Promise.all([
+                    api.request('/rest/v1/participants?select=*&order=id', { auth: true }),
+                    api.request('/rest/v1/settings?select=results_published&id=eq.1', { auth: true })
+                ]);
+                this.participants = (rows || []).map(r => this.rowToParticipant(r));
+                const pub = !!(settings && settings[0] && settings[0].results_published);
+                this.finalized = pub;
+                this.resultsPublished = pub;
+            },
+
+            applyPortal(d) {
+                const pub = !!d.published;
+                this.finalized = pub;
+                this.resultsPublished = pub;
+                const list = (d.participants || []).map(r => this.rowToParticipant(r));
+                const me = this.rowToParticipant(d.me);
+                const idx = list.findIndex(x => x.id === me.id);
+                if (idx >= 0) list[idx] = me; else list.push(me);
+                this.participants = list;
+                return me;
+            },
+
+            applyPublic(d) {
+                const pub = !!d.published;
+                this.finalized = pub;
+                this.resultsPublished = pub;
+                this.participants = (d.participants || []).map(r => this.rowToParticipant(r));
+            },
+
+            connectionError(e) {
+                return (e && e.network) ? 'No hay conexión a internet. Comprueba la conexión e inténtalo de nuevo.'
+                                        : 'No se ha podido guardar. Inténtalo de nuevo.';
+            },
+
+            // Refresco automático para participantes y público
+            startAutoRefresh() {
+                this.stopAutoRefresh();
+                this._refreshTimer = setInterval(() => this.refreshRemote(), 20000);
+            },
+
+            stopAutoRefresh() {
+                if (this._refreshTimer) clearInterval(this._refreshTimer);
+                this._refreshTimer = null;
+            },
+
+            async refreshRemote() {
+                if (document.hidden || this._refreshBusy) return;
+                this._refreshBusy = true;
+                try {
+                    if (this.currentRole === 'participant') {
+                        const s = this.readSession();
+                        if (!s || !s.username) return;
+                        const d = await api.rpc('participant_portal', { p_username: s.username, p_password: s.password });
+                        if (!d) { this.logout(); return; }
+                        const sig = JSON.stringify(d);
+                        if (sig !== this._lastSig) { this._lastSig = sig; this.applyPortal(d); this.loadParticipantResults(); }
+                    } else if (this.currentRole === 'spectator') {
+                        const d = await api.rpc('public_results');
+                        const sig = JSON.stringify(d);
+                        if (sig !== this._lastSig) { this._lastSig = sig; this.applyPublic(d); this.loadPublicResults(); }
+                    }
+                } catch (e) {
+                    // Sin conexión: se mantienen los últimos datos y se reintenta en el siguiente ciclo
+                } finally {
+                    this._refreshBusy = false;
+                }
+            },
+
+            setButtonBusy(selector, busy, busyText) {
+                const btn = document.querySelector(selector);
+                if (!btn) return;
+                if (busy) { btn.dataset.label = btn.textContent; btn.textContent = busyText; btn.disabled = true; }
+                else { if (btn.dataset.label) btn.textContent = btn.dataset.label; btn.disabled = false; }
+            },
+
+            displayRandomPhrase() {
+                const phraseEl = document.getElementById('inspirationalPhrase');
+                if (phraseEl) {
+                    const lang = document.documentElement.lang === 'en' ? 'en' : 'es';
+                    phraseEl.textContent = this.getMainPhrase(lang);
+                    phraseEl.style.opacity = '0';
+                    setTimeout(() => {
+                        phraseEl.style.transition = 'opacity 1s ease-in-out';
+                        phraseEl.style.opacity = '1';
+                    }, 100);
+                }
+
+                // Update header tagline
+                const headerTagline = document.getElementById('headerTagline');
+                if (headerTagline) {
+                    const lang = document.documentElement.lang === 'en' ? 'en' : 'es';
+                    headerTagline.textContent = lang === 'es' ? 'Tradición · Elegancia · Excelencia\nFuengirola · 8 de octubre de 2026' : 'Tradition · Elegance · Excellence\nFuengirola · October 8th, 2026';
+                }
+            },
+
+            selectRole(role) {
+                this.currentRole = role;
+
+                if (role === 'spectator') {
+                    this.loginAsSpectator();
+                    return;
+                }
+
+                // Hide role selection and show appropriate form
+                document.getElementById('roleSelection').style.display = 'none';
+                document.querySelectorAll('.login-form').forEach(f => f.classList.remove('active'));
+
+                if (role === 'participant') {
+                    document.getElementById('participantForm').classList.add('active');
+                } else if (role === 'judge') {
+                    document.getElementById('judgeForm').classList.add('active');
+                }
+            },
+
+            backToRoles() {
+                document.getElementById('roleSelection').style.display = 'block';
+                document.querySelectorAll('.login-form').forEach(f => f.classList.remove('active'));
+                document.querySelectorAll('.error-msg').forEach(e => e.classList.remove('show'));
+            },
+
+            async loginJudge() {
+                const user = document.getElementById('judgeEmail').value.toLowerCase().trim();
+                const password = document.getElementById('judgePassword').value;
+                const errorMsg = document.getElementById('judgeErrorMsg');
+
+                if (!user || !password) {
+                    this.showError(errorMsg, 'Por favor, completa todos los campos');
+                    return;
+                }
+
+                const email = user.includes('@') ? user : user + JUDGE_EMAIL_DOMAIN;
+                this.setButtonBusy('#judgeForm .btn-login', true, 'Entrando...');
+                try {
+                    const s = await api.signIn(email, password);
+                    const role = s.user && s.user.app_metadata && s.user.app_metadata.role;
+                    if (role !== 'judge') { api.signOut(); throw Object.assign(new Error('norole'), { status: 400 }); }
+                    await this.loadJudgeData();
+                    this.currentUser = user.split('@')[0];
+                    this.currentRole = 'judge';
+                    this.saveSession();
+                    this.showApp();
+                } catch (e) {
+                    this.showError(errorMsg, e.network ? 'No hay conexión a internet. Inténtalo de nuevo.' : 'Credenciales inválidas. Acceso denegado.');
+                } finally {
+                    this.setButtonBusy('#judgeForm .btn-login', false);
+                }
+            },
+
+            async loginParticipant() {
+                const username = document.getElementById('participantUsername').value.toLowerCase().trim();
+                const password = document.getElementById('participantPassword').value.trim();
+                const errorMsg = document.getElementById('errorMsg');
+
+                if (!username || !password) {
+                    this.showError(errorMsg, 'Por favor, completa todos los campos');
+                    return;
+                }
+
+                this.setButtonBusy('#participantForm .btn-login', true, 'Entrando...');
+                try {
+                    const d = await api.rpc('participant_portal', { p_username: username, p_password: password });
+                    if (!d) { this.showError(errorMsg, 'Usuario o contraseña incorrectos'); return; }
+                    const me = this.applyPortal(d);
+                    this._lastSig = JSON.stringify(d);
+                    this.currentUser = me.name;
+                    this.currentRole = 'participant';
+                    this.currentParticipant = me.id;
+                    this.saveSession({ username, password });
+                    this.showApp();
+                } catch (e) {
+                    this.showError(errorMsg, 'No hay conexión a internet. Inténtalo de nuevo.');
+                } finally {
+                    this.setButtonBusy('#participantForm .btn-login', false);
+                }
+            },
+
+            loginAsSpectator() {
+                this.currentUser = 'Espectador';
+                this.currentRole = 'spectator';
+                this.participants = [];
+                this.finalized = false;
+                this.resultsPublished = false;
+                this.publicLoading = true;
+                this._lastSig = null;
+                this.saveSession();
+                this.showApp();
+                this.refreshRemote().finally(() => { this.publicLoading = false; this.loadPublicResults(); });
+            },
+
+            // Avisos dentro de la app (los cuadros del navegador están bloqueados en esta vista)
+            notify(message, duration) {
+                let el = document.getElementById('appToast');
+                if (!el) {
+                    el = document.createElement('div');
+                    el.id = 'appToast';
+                    el.className = 'app-toast';
+                    document.body.appendChild(el);
+                }
+                el.textContent = message;
+                el.classList.add('show');
+                clearTimeout(this._toastTimer);
+                this._toastTimer = setTimeout(() => el.classList.remove('show'), duration || Math.min(9000, 3500 + message.length * 40));
+            },
+
+            confirmDialog(message, onYes, yesLabel = 'Aceptar', danger = false) {
+                const old = document.getElementById('appModal');
+                if (old) old.remove();
+                const wrap = document.createElement('div');
+                wrap.id = 'appModal';
+                wrap.className = 'app-modal-backdrop';
+                wrap.innerHTML = `<div class="app-modal" role="dialog" aria-modal="true">
+                    <p></p>
+                    <div class="app-modal-actions">
+                        <button type="button" class="btn" data-act="no" style="background: var(--border); color: var(--text-dark);">Cancelar</button>
+                        <button type="button" class="btn ${danger ? 'btn-danger' : 'btn-success'}" data-act="yes"></button>
+                    </div>
+                </div>`;
+                wrap.querySelector('p').textContent = message;
+                wrap.querySelector('[data-act="yes"]').textContent = yesLabel;
+                const close = () => wrap.remove();
+                wrap.querySelector('[data-act="no"]').onclick = close;
+                wrap.querySelector('[data-act="yes"]').onclick = () => { close(); onYes(); };
+                wrap.addEventListener('click', e => { if (e.target === wrap) close(); });
+                document.body.appendChild(wrap);
+            },
+
+            showSuccessMsg(id) {
+                const el = document.getElementById(id);
+                if (!el) return;
+                el.classList.add('show');
+                setTimeout(() => el.classList.remove('show'), 4000);
+            },
+
+            showError(element, message) {
+                element.textContent = message;
+                element.classList.add('show');
+                setTimeout(() => element.classList.remove('show'), 5000);
+            },
+
+            showApp() {
+                document.getElementById('loginPage').classList.add('hidden');
+                document.getElementById('app').classList.add('active');
+
+                document.getElementById('userInfo').textContent = 'Usuario: ' + this.currentUser;
+                document.getElementById('roleInfo').textContent = this.getRoleLabel();
+
+                if (this.currentRole === 'judge') {
+                    document.getElementById('judgeView').classList.add('active');
+                    this.loadCredentialsTable();
+                    this.initializeJudgeParticipantDropdown();
+                    this.updatePublishStatus();
+                } else if (this.currentRole === 'participant') {
+                    document.getElementById('participantView').classList.add('active');
+                    this.participantTab = 1;
+                    this.loadParticipantResults();
+                    this.startAutoRefresh();
+                } else {
+                    document.getElementById('spectatorView').classList.add('active');
+                    this.setLanguage(this.currentLanguage || 'es');
+                    this.startAutoRefresh();
+                }
+            },
+
+            getRoleLabel() {
+                const labels = {
+                    'judge': 'Juez',
+                    'participant': 'Participante',
+                    'spectator': 'Espectador'
+                };
+                return labels[this.currentRole] || '';
+            },
+
+            saveSession(extra) {
+                try {
+                    localStorage.setItem('atalaje-session', JSON.stringify(Object.assign({
+                        role: this.currentRole, user: this.currentUser, participant: this.currentParticipant || null
+                    }, extra || {})));
+                } catch (e) {}
+            },
+
+            readSession() {
+                try { return JSON.parse(localStorage.getItem('atalaje-session') || 'null'); } catch (e) { return null; }
+            },
+
+            clearSession() {
+                try { localStorage.removeItem('atalaje-session'); } catch (e) {}
+            },
+
+            async restoreSession() {
+                const s = this.readSession();
+                if (!s || !s.role) return;
+                if (s.role === 'spectator') { this.loginAsSpectator(); return; }
+                try {
+                    if (s.role === 'participant') {
+                        if (!s.username) { this.clearSession(); return; }
+                        const d = await api.rpc('participant_portal', { p_username: s.username, p_password: s.password });
+                        if (!d) { this.clearSession(); return; }
+                        const me = this.applyPortal(d);
+                        this._lastSig = JSON.stringify(d);
+                        this.currentUser = me.name;
+                        this.currentParticipant = me.id;
+                    } else if (s.role === 'judge') {
+                        if (!api.loadSession()) { this.clearSession(); return; }
+                        await this.loadJudgeData();
+                        this.currentUser = s.user;
+                    } else return;
+                } catch (e) {
+                    if (e && e.network) { this.notify('No hay conexión a internet. Vuelve a intentarlo en un momento.'); return; }
+                    api.storeSession(null);
+                    this.clearSession();
+                    return;
+                }
+                this.currentRole = s.role;
+                this.showApp();
+            },
+
+            logout() {
+                this.clearSession();
+                this.stopAutoRefresh();
+                if (this.currentRole === 'judge') api.signOut();
+                this.participants = [];
+                this.scores = {};
+                this._lastSig = null;
+                this.currentUser = null;
+                this.currentRole = null;
+                this.currentParticipant = null;
+                this.currentLanguage = 'es';
+
+                // Hide app, show login
+                document.getElementById('app').classList.remove('active');
+                document.getElementById('loginPage').classList.remove('hidden');
+
+                // Hide all role views
+                document.getElementById('judgeView').classList.remove('active');
+                document.getElementById('participantView').classList.remove('active');
+                document.getElementById('spectatorView').classList.remove('active');
+
+                // Reset forms
+                document.getElementById('roleSelection').style.display = 'block';
+                document.querySelectorAll('.login-form').forEach(f => {
+                    f.classList.remove('active');
+                    f.style.opacity = '0';
+                });
+
+                // Clear input fields
+                document.getElementById('participantUsername').value = '';
+                document.getElementById('participantPassword').value = '';
+                document.getElementById('judgeEmail').value = '';
+                document.getElementById('judgePassword').value = '';
+
+                // Clear error messages
+                document.querySelectorAll('.error-msg').forEach(e => {
+                    e.classList.remove('show');
+                    e.textContent = '';
+                });
+
+                // Volver a español y refrescar textos
+                this.setLanguage('es');
+            },
+
+            setLanguage(lang) {
+                this.currentLanguage = lang;
+                document.documentElement.lang = lang;
+
+                document.querySelectorAll('[onclick*="setLanguage"]').forEach(btn => {
+                    const code = btn.textContent.includes('ES') ? 'es' : 'en';
+                    btn.style.background = code === lang ? 'var(--primary)' : 'transparent';
+                    btn.style.color = code === lang ? 'white' : '#999';
+                });
+
+                document.querySelectorAll('[data-i18n]').forEach(el => {
+                    el.textContent = this.t(el.getAttribute('data-i18n'));
+                });
+
+                this.displayRandomPhrase();
+                if (this.currentRole === 'spectator') {
+                    const en = lang === 'en';
+                    document.getElementById('userInfo').textContent = (en ? 'User: ' : 'Usuario: ') + (en ? 'Spectator' : 'Espectador');
+                    document.getElementById('roleInfo').textContent = en ? 'Spectator' : 'Espectador';
+                    this.loadPublicResults();
+                }
+            },
+
+            initializeJudgeParticipantDropdown() {
+                const dropdown = document.getElementById('judgeParticipant');
+                const participants = this.participants || [];
+
+                // Sort by dorsal number
+                const sortedParticipants = participants.sort((a, b) => {
+                    return parseInt(a.id) - parseInt(b.id);
+                });
+
+                dropdown.innerHTML = '<option value="">-- Selecciona un participante --</option>';
+                sortedParticipants.forEach(p => {
+                    const option = document.createElement('option');
+                    option.value = p.id;
+                    const status = p.evaluated ? ' (Evaluado)' : '';
+                    const cat = (this.CATEGORIES.find(c => c.id === p.category) || {}).name || p.category;
+                    option.textContent = `Dorsal ${p.id} - ${p.name} - ${cat}${status}`;
+                    dropdown.appendChild(option);
+                });
+            },
+
+            loadParticipantEvaluation() {
+                const participantId = document.getElementById('judgeParticipant').value;
+                const content = document.getElementById('participantEvalContent');
+
+                if (!participantId) {
+                    content.innerHTML = '<div class="empty-state"><p>Selecciona un participante</p></div>';
+                    return;
+                }
+
+                this.currentJudgeEvalParticipant = participantId;
+
+                // Find participant data
+                let participant = this.participants && this.participants.length > 0
+                    ? this.participants.find(p => p.id === participantId)
+                    : { id: participantId, name: `Participante ${participantId}`, horse: 'Caballo', category: 'binomio-jinete' };
+
+                if (!participant) {
+                    participant = { id: participantId, name: `Participante ${participantId}`, horse: 'Caballo', category: 'binomio-jinete' };
+                }
+
+                const sections = [
+                    {
+                        id: 'impresion',
+                        name: 'IMPRESIÓN GENERAL: Valoración del Binomio',
+                        items: [
+                            { name: 'Del binomio amazona/jinete', desc: 'Evaluación global del binomio' },
+                            { name: 'Aplicación fiel a la usanza tradicional', desc: 'Seguimiento de la tradición ecuestre' }
+                        ]
+                    },
+                    {
+                        id: 'arneses',
+                        name: 'ARNESES DEL CABALLO',
+                        items: [
+                            { name: 'Cueros: limpieza y conservación', desc: 'Estado y mantenimiento de los arneses' },
+                            { name: 'Silla: ajuste, colocación y manufactura', desc: 'Correcta colocación y calidad' },
+                            { name: 'Cabezada y petral: manufactura', desc: 'Ajuste y factura del equipamiento' },
+                            { name: 'Embocadura', desc: 'Correcta colocación y estado' },
+                            { name: 'Vara/Baqueta (no fusta)', desc: 'Presente y en condiciones' }
+                        ]
+                    },
+                    {
+                        id: 'vestimenta',
+                        name: 'VESTIMENTA: Elaboración del Atuendo',
+                        items: [
+                            { name: 'Sombrero', desc: 'Colocación y estado del sombrero' },
+                            { name: 'Chaqueta, chaleco y camisa', desc: 'Correcta combinación y presentación' },
+                            { name: 'Falda/Calzona', desc: 'Adecuada presentación del vestuario' },
+                            { name: 'Calzado y espuelas', desc: 'Colocación y estado del calzado y las espuelas' },
+                            { name: 'Idoneidad: según el clima y el protocolo del evento', desc: 'Adaptación a condiciones y protocolo' }
+                        ]
+                    },
+                    {
+                        id: 'presentacion',
+                        name: 'CABALLO',
+                        items: [
+                            { name: 'Limpieza y conservación general', desc: 'Estado general, limpieza y cuidado del caballo' },
+                            { name: 'Higiene: herraje, trenzado', desc: 'Aseo y preparación del animal' },
+                            { name: 'Actitud: saber estar y relajación', desc: 'Comportamiento y disposición del caballo' }
+                        ]
+                    },
+                    {
+                        id: 'amazona',
+                        name: 'AMAZONA/JINETE',
+                        items: [
+                            { name: 'Posición en la silla', desc: 'Correcta ubicación y estabilidad' },
+                            { name: 'Empleo de las ayudas (brusco/sutil)', desc: 'Manejo de las riendas y de las ayudas' },
+                            { name: 'Actitud: sonriente/serio, elegancia, sobriedad', desc: 'Presentación personal y compostura' }
+                        ]
+                    }
+                ];
+
+                // Filtrar Vara/Baqueta de ARNESES si NO es categoría amazona
+                if (participant.category !== 'binomio-amazona') {
+                    const arnesSection = sections.find(s => s.id === 'arneses');
+                    if (arnesSection) {
+                        arnesSection.items = arnesSection.items.filter(item => item.name !== 'Vara/Baqueta (no fusta)');
+                    }
+                }
+
+                // Cargar puntuaciones guardadas (o empezar en 10.0) y completar cualquier sección que falte
+                // Siempre se trabaja sobre una copia (borrador): nada cuenta hasta pulsar "Guardar"
+                this.scores[participantId] = participant.scores ? JSON.parse(JSON.stringify(participant.scores)) : {};
+                const saved = this.scores[participantId];
+                this.migrateScores(saved);
+                sections.forEach(section => {
+                    const n = section.items.length;
+                    const cur = saved[section.id];
+                    let items = (cur && Array.isArray(cur.items)) ? cur.items.slice(0, n) : [];
+                    while (items.length < n) items.push(10.0);
+                    items = items.map(v => (typeof v === 'number' && v > 0) ? v : 10.0);
+                    saved[section.id] = {
+                        items: items,
+                        average: items.reduce((x, y) => x + y, 0) / n
+                    };
+                });
+                if (typeof saved.finalScore === 'undefined') saved.finalScore = 0;
+
+                // Build HTML for single participant evaluation
+                let html = `<div class="card">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; padding: 1.5rem; background: rgba(45, 80, 22, 0.05); border-radius: var(--radius); border-left: 4px solid var(--secondary);">
+                        <div>
+                            <small style="color: var(--text-light); text-transform: uppercase; font-weight: 600; font-size: 0.75rem; letter-spacing: 0.5px;">Número</small>
+                            <p style="margin: 0.5rem 0 0 0; font-size: 1.3rem; font-weight: 700; color: var(--primary);">${participant.id}</p>
+                        </div>
+                        <div>
+                            <small style="color: var(--text-light); text-transform: uppercase; font-weight: 600; font-size: 0.75rem; letter-spacing: 0.5px;">Participante</small>
+                            <p style="margin: 0.5rem 0 0 0; font-size: 1.1rem; font-weight: 600; color: var(--text-dark);">${participant.name}</p>
+                        </div>
+                        <div>
+                            <small style="color: var(--text-light); text-transform: uppercase; font-weight: 600; font-size: 0.75rem; letter-spacing: 0.5px;">Categoría</small>
+                            <p style="margin: 0.5rem 0 0 0; font-size: 1rem; font-weight: 600; color: var(--primary);">${participant.category}</p>
+                        </div>
+                    </div>
+
+                    <h3 style="color: var(--primary); margin: 2rem 0 1rem 0; font-size: 1.2rem;">Evaluación Completa del Participante</h3>
+                    <p style="color: var(--text-light); margin-bottom: 1.5rem; font-size: 0.9rem;">Puntúa cada criterio de 5 a 10. Los cálculos se actualizan automáticamente.</p>`;
+
+                // Add sections with criteria
+                let totalCriteria = 0;
+                sections.forEach(section => {
+                    const sectionData = this.scores[participantId][section.id];
+                    const sectionAverage = sectionData.average > 0 ? sectionData.average.toFixed(2) : '-';
+                    totalCriteria += section.items.length;
+
+                    html += `<div style="background: rgba(45, 80, 22, 0.05); padding: 1.5rem; border-radius: var(--radius); margin-bottom: 1.5rem; border-left: 4px solid var(--primary);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                            <h4 style="color: var(--primary); margin: 0; font-size: 1.1rem;">${section.name}</h4>
+                            <div style="background: white; padding: 0.5rem 1rem; border-radius: 20px; border: 2px solid var(--secondary); text-align: center;">
+                                <small style="color: var(--text-light); display: block; font-size: 0.75rem; text-transform: uppercase; font-weight: 600;">Media de Sección</small>
+                                <span class="section-average-display" id="section-avg-${participantId}-${section.id}" style="font-size: 1.1rem; font-weight: 700; color: var(--primary);">${sectionAverage}</span>
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">`;
+
+                    section.items.forEach((item, itemIdx) => {
+                        const value = sectionData.items[itemIdx] || '';
+                        const itemName = typeof item === 'string' ? item : item.name;
+                        const itemDesc = typeof item === 'string' ? '' : item.desc;
+
+                        html += `<div style="background: white; padding: 1rem; border-radius: var(--radius); border-left: 4px solid var(--secondary); display: flex; flex-direction: column; gap: 0.5rem;">
+                            <div>
+                                <small style="display: block; color: var(--primary); font-size: 0.8rem; font-weight: 600; margin-bottom: 0.25rem;">${itemName}</small>
+                                ${itemDesc ? `<small style="display: block; color: var(--text-light); font-size: 0.75rem; font-style: italic;">${itemDesc}</small>` : ''}
+                            </div>
+                            <div style="display: flex; gap: 0.5rem; align-items: center; justify-content: center; margin-top: auto;">
+                                <button class="btn btn-primary" onclick="app.decrementScore('${participantId}', '${section.id}', ${itemIdx})" style="padding: 0.5rem 0.75rem; min-width: 44px; min-height: 44px; font-size: 1.1rem; font-weight: bold; border-radius: 50%; display: flex; align-items: center; justify-content: center;">−</button>
+                                <span class="participant-score-display" data-participant="${participantId}" data-section="${section.id}" data-item="${itemIdx}" style="min-width: 50px; text-align: center; font-weight: 600; font-size: 1rem;">${value || '10.0'}</span>
+                                <button class="btn btn-primary" onclick="app.incrementScore('${participantId}', '${section.id}', ${itemIdx})" style="padding: 0.5rem 0.75rem; min-width: 44px; min-height: 44px; font-size: 1.1rem; font-weight: bold; border-radius: 50%; display: flex; align-items: center; justify-content: center;">+</button>
+                                <input type="hidden" class="participant-score" data-participant="${participantId}" data-section="${section.id}" data-item="${itemIdx}" value="${value || 10.0}">
+                            </div>
+                        </div>`;
+                    });
+
+                    html += `</div></div>`;
+                });
+
+                html += `</div>
+
+                <div class="card">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">`;
+
+                // Display section averages summary
+                sections.forEach(section => {
+                    const sectionData = this.scores[participantId][section.id];
+                    const sectionAverage = sectionData.average > 0 ? sectionData.average.toFixed(2) : '-';
+                    html += `<div style="padding: 1rem; background: rgba(45, 80, 22, 0.05); border-radius: var(--radius); border-left: 4px solid var(--primary); text-align: center;">
+                        <small style="color: var(--text-light); font-size: 0.75rem; text-transform: uppercase; font-weight: 600; display: block; margin-bottom: 0.5rem;">${section.name.split(' ')[0]}</small>
+                        <p class="section-summary-average" id="section-summary-avg-${participantId}-${section.id}" style="margin: 0; font-size: 1.5rem; font-weight: 700; color: var(--primary);">${sectionAverage}</p>
+                    </div>`;
+                });
+
+                html += `</div>
+
+                    <div style="padding: 1.5rem; background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(45, 80, 22, 0.05) 100%); border-radius: var(--radius); border-left: 4px solid var(--secondary); text-align: center; margin-bottom: 1rem;">
+                        <small style="color: var(--text-light); text-transform: uppercase; font-weight: 600; font-size: 0.75rem; letter-spacing: 0.5px; display: block; margin-bottom: 0.5rem;">Puntuación Final del Participante</small>
+                        <p style="margin: 0; font-size: 2rem; font-weight: 700; color: var(--primary);" id="finalParticipantScore">-</p>
+                    </div>
+
+                    <div style="margin-bottom: 1.5rem;">
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: block; color: var(--primary); font-weight: 600; margin-bottom: 0.5rem;">Puntos Fuertes</label>
+                            <textarea id="strongPoints-${participantId}" placeholder="Describe los puntos fuertes del participante..." style="width: 100%; padding: 0.75rem; border: 2px solid var(--border); border-radius: var(--radius); font-size: 0.95rem; font-family: inherit; min-height: 80px; resize: vertical;">${participant.strongPoints || ''}</textarea>
+                        </div>
+                        <div>
+                            <label style="display: block; color: var(--primary); font-weight: 600; margin-bottom: 0.5rem;">Puntos a Mejorar</label>
+                            <textarea id="improvementPoints-${participantId}" placeholder="Describe los puntos a mejorar del participante..." style="width: 100%; padding: 0.75rem; border: 2px solid var(--border); border-radius: var(--radius); font-size: 0.95rem; font-family: inherit; min-height: 80px; resize: vertical;">${participant.improvementPoints || ''}</textarea>
+                        </div>
+                    </div>
+
+                    <button id="saveEvalBtn" class="btn btn-success btn-full" onclick="app.saveParticipantEvaluation('${participantId}')" style="margin-top: 1rem;">
+                        Guardar Evaluación
+                    </button>
+                </div>`;
+
+                content.innerHTML = html;
+                this.updateParticipantFinalScore(participantId);
+            },
+
+            updateSectionAverage(participantId, section) {
+                const inputs = document.querySelectorAll(`.participant-score[data-participant="${participantId}"][data-section="${section}"]`);
+                const values = Array.from(inputs).map(inp => {
+                    const val = parseFloat(inp.value);
+                    return !isNaN(val) ? val : 0;
+                });
+
+                if (this.scores[participantId] && values.length > 0) {
+                    // Filter only non-zero values for average calculation
+                    const validValues = values.filter(v => v > 0);
+
+                    if (validValues.length > 0) {
+                        const average = validValues.reduce((a, b) => a + b, 0) / validValues.length;
+                        this.scores[participantId][section].items = values;
+                        this.scores[participantId][section].average = average;
+
+                        // Update DOM elements that display the section average
+                        const avgDisplay = document.getElementById(`section-avg-${participantId}-${section}`);
+                        const avgSummary = document.getElementById(`section-summary-avg-${participantId}-${section}`);
+                        const formattedAvg = average.toFixed(2);
+
+                        if (avgDisplay) avgDisplay.textContent = formattedAvg;
+                        if (avgSummary) avgSummary.textContent = formattedAvg;
+
+                        this.updateParticipantFinalScore(participantId);
+                    }
+                }
+            },
+
+            updateParticipantFinalScore(participantId) {
+                if (!this.scores[participantId]) return;
+
+                const scoreData = this.scores[participantId];
+                let totalScore = 0;
+                let sectionCount = 0;
+
+                ['impresion', 'arneses', 'vestimenta', 'presentacion', 'amazona'].forEach(section => {
+                    if (scoreData[section] && scoreData[section].average > 0) {
+                        totalScore += scoreData[section].average;
+                        sectionCount++;
+                    }
+                });
+
+                const finalScore = sectionCount > 0 ? (totalScore / sectionCount).toFixed(2) : '-';
+                scoreData.finalScore = finalScore;
+
+                const display = document.getElementById('finalParticipantScore');
+                if (display) {
+                    display.textContent = finalScore !== '-' ? finalScore : '-';
+                }
+            },
+
+            incrementScore(participantId, section, itemIdx) {
+                const input = document.querySelector(`.participant-score[data-participant="${participantId}"][data-section="${section}"][data-item="${itemIdx}"]`);
+                const display = document.querySelector(`.participant-score-display[data-participant="${participantId}"][data-section="${section}"][data-item="${itemIdx}"]`);
+                if (!input || !display) return;
+
+                let currentValue = parseFloat(input.value) || 10.0;
+                let newValue = Math.min(currentValue + 0.5, 10.0);
+                input.value = newValue;
+                display.textContent = newValue.toFixed(1);
+                this.updateSectionAverage(participantId, section);
+            },
+
+            decrementScore(participantId, section, itemIdx) {
+                const input = document.querySelector(`.participant-score[data-participant="${participantId}"][data-section="${section}"][data-item="${itemIdx}"]`);
+                const display = document.querySelector(`.participant-score-display[data-participant="${participantId}"][data-section="${section}"][data-item="${itemIdx}"]`);
+                if (!input || !display) return;
+
+                let currentValue = parseFloat(input.value) || 10.0;
+                let newValue = Math.max(currentValue - 0.5, 5.0);
+                input.value = newValue;
+                display.textContent = newValue.toFixed(1);
+                this.updateSectionAverage(participantId, section);
+            },
+
+            saveParticipantEvaluation(participantId) {
+                const participant = this.participants.find(p => p.id === participantId);
+                const draft = this.scores[participantId];
+                if (!participant || !draft) return;
+
+                // Validar que todos los criterios estén entre 5 y 10
+                const inputs = document.querySelectorAll(`.participant-score[data-participant="${participantId}"]`);
+                const invalid = Array.from(inputs).some(inp => { const v = parseFloat(inp.value); return !v || v < 5 || v > 10; });
+                if (invalid) {
+                    alert('Por favor, completa todos los criterios con valores entre 5 y 10');
+                    return;
+                }
+
+                // Confirmar el borrador como evaluación definitiva
+                const updated = Object.assign({}, participant, {
+                    scores: JSON.parse(JSON.stringify(draft)),
+                    evaluated: true,
+                    strongPoints: (document.getElementById('strongPoints-' + participantId) || {}).value || '',
+                    improvementPoints: (document.getElementById('improvementPoints-' + participantId) || {}).value || ''
+                });
+                const row = this.participantToRow(updated);
+                const btn = document.getElementById('saveEvalBtn');
+                if (btn) { btn.disabled = true; btn.dataset.label = btn.textContent; btn.textContent = 'Guardando...'; }
+                api.request('/rest/v1/participants?id=eq.' + encodeURIComponent(participantId), {
+                    method: 'PATCH', auth: true, prefer: 'return=representation',
+                    body: { scores: row.scores, evaluated: true, strong_points: row.strong_points, improvement_points: row.improvement_points, updated_at: row.updated_at }
+                }).then(res => {
+                    if (!res || res.length === 0) throw new Error('nada guardado');
+                    Object.assign(participant, updated);
+                    this.afterEvaluationSaved();
+                }).catch(e => {
+                    if (btn) { btn.disabled = false; btn.textContent = btn.dataset.label || 'Guardar Evaluación'; }
+                    this.notify(this.connectionError(e));
+                });
+            },
+
+            afterEvaluationSaved() {
+                this.initializeJudgeParticipantDropdown();
+                document.getElementById('judgeParticipant').value = '';
+                document.getElementById('participantEvalContent').innerHTML = '<div class="empty-state"><p>Evaluación guardada. Selecciona otro participante.</p></div>';
+                this.showSuccessMsg('judgeSuccessMsg');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            },
+
+            loadParticipantResults() {
+                this.renderParticipantResults();
+                if (this.participantTab === 2) this.switchParticipantTab(2);
+            },
+
+            renderParticipantResults() {
+                const content = document.getElementById('participantResultsContent');
+
+                if (!this.finalized) {
+                    content.innerHTML = '<div class="empty-state"><p>Tus resultados estarán disponibles cuando el jurado los publique.</p></div>';
+                    return;
+                }
+
+                const currentPart = this.participants.find(p => p.id === this.currentParticipant);
+                if (!currentPart || !currentPart.scores || Object.keys(currentPart.scores).length === 0) {
+                    content.innerHTML = '<div class="empty-state"><p>Tus resultados estarán disponibles cuando el jurado los publique.</p></div>';
+                    return;
+                }
+
+                const sectionsList = ['impresion', 'arneses', 'vestimenta', 'presentacion', 'amazona'];
+                const hasRealScores = sectionsList.some(s =>
+                    currentPart.scores[s] &&
+                    typeof currentPart.scores[s].average === 'number' &&
+                    currentPart.scores[s].average > 0
+                );
+
+                if (!hasRealScores) {
+                    content.innerHTML = '<div class="empty-state"><p>Tus resultados estarán disponibles cuando el jurado los publique.</p></div>';
+                    return;
+                }
+
+                const sectionsDefinition = [
+                    { id: 'impresion', name: 'IMPRESIÓN GENERAL: Valoración del Binomio', items: [
+                        { name: 'Del binomio amazona/jinete', desc: 'Evaluación global del binomio' },
+                        { name: 'Aplicación fiel a la usanza tradicional', desc: 'Seguimiento de la tradición ecuestre' }
+                    ]},
+                    { id: 'arneses', name: 'ARNESES DEL CABALLO', items: [
+                        { name: 'Cueros: limpieza y conservación', desc: 'Estado y mantenimiento de los arneses' },
+                        { name: 'Silla: ajuste, colocación y manufactura', desc: 'Correcta colocación y calidad' },
+                        { name: 'Cabezada y petral: manufactura', desc: 'Ajuste y factura del equipamiento' },
+                        { name: 'Embocadura', desc: 'Correcta colocación y estado' },
+                        { name: 'Vara/Baqueta (no fusta)', desc: 'Presente y en condiciones' }
+                    ]},
+                    { id: 'vestimenta', name: 'VESTIMENTA: Elaboración del Atuendo', items: [
+                        { name: 'Sombrero', desc: 'Colocación y estado del sombrero' },
+                        { name: 'Chaqueta, chaleco y camisa', desc: 'Correcta combinación y presentación' },
+                        { name: 'Falda/Calzona', desc: 'Adecuada presentación del vestuario' },
+                        { name: 'Calzado y espuelas', desc: 'Colocación y estado del calzado y las espuelas' },
+                        { name: 'Idoneidad: según el clima y el protocolo del evento', desc: 'Adaptación a condiciones y protocolo' }
+                    ]},
+                    { id: 'presentacion', name: 'CABALLO', items: [
+                        { name: 'Limpieza y conservación general', desc: 'Estado general, limpieza y cuidado del caballo' },
+                        { name: 'Higiene: herraje, trenzado', desc: 'Aseo y preparación del animal' },
+                        { name: 'Actitud: saber estar y relajación', desc: 'Comportamiento y disposición del caballo' }
+                    ]},
+                    { id: 'amazona', name: 'AMAZONA/JINETE', items: [
+                        { name: 'Posición en la silla', desc: 'Correcta ubicación y estabilidad' },
+                        { name: 'Empleo de las ayudas (brusco/sutil)', desc: 'Manejo de las riendas y de las ayudas' },
+                        { name: 'Actitud: sonriente/serio, elegancia, sobriedad', desc: 'Presentación personal y compostura' }
+                    ]}
+                ];
+
+                // MENÚ PRINCIPAL - 2 TABS ÚNICOS (sin Información)
+                let html = `<div style="display: flex; gap: 2rem; border-bottom: 3px solid var(--border); margin-bottom: 2rem; padding-bottom: 1rem;">
+                    <button id="tab-btn-1" style="background: none; border: none; font-size: 1rem; font-weight: 700; color: var(--primary); cursor: pointer; border-bottom: 3px solid var(--primary); padding: 0 0 0.5rem 0; margin-bottom: -1rem;" onclick="app.switchParticipantTab(1);">Mis Resultados</button>
+                    <button id="tab-btn-2" style="background: none; border: none; font-size: 1rem; font-weight: 600; color: var(--text-light); cursor: pointer; border-bottom: 3px solid transparent; padding: 0 0 0.5rem 0; margin-bottom: -1rem;" onclick="app.switchParticipantTab(2);">Resultados del Concurso</button>
+                </div>`;
+
+                // TAB 1: MIS RESULTADOS
+                html += `<div id="tab-1-content" style="display: block;">`;
+                const sectionAverages = [];
+
+                if (currentPart.category !== 'binomio-amazona') {
+                    const arn = sectionsDefinition.find(sec => sec.id === 'arneses');
+                    if (arn) arn.items = arn.items.filter(it => it.name !== 'Vara/Baqueta (no fusta)');
+                }
+
+                sectionsDefinition.forEach(section => {
+                    const sectionData = currentPart.scores[section.id];
+                    if (!sectionData || !sectionData.items || sectionData.items.length === 0) return;
+
+                    const validValues = sectionData.items.filter(v => v && v > 0);
+                    const sectionAverage = validValues.length > 0 ? (validValues.reduce((a, b) => a + b, 0) / validValues.length).toFixed(2) : 'N/A';
+                    if (sectionAverage !== 'N/A') sectionAverages.push(parseFloat(sectionAverage));
+
+                    html += `<div style="background: rgba(45, 80, 22, 0.05); padding: 1.5rem; border-radius: var(--radius); margin-bottom: 2rem; border-left: 4px solid var(--secondary);">
+                        <h3 style="color: var(--primary); margin: 0 0 1.5rem 0; font-size: 1.2rem;">${section.name}</h3>
+                        <div style="display: grid; grid-template-columns: 1fr; gap: 0.75rem; margin-bottom: 1.5rem;">`;
+
+                    section.items.forEach((item, itemIdx) => {
+                        const itemScore = sectionData.items[itemIdx] || 'N/A';
+                        const displayScore = itemScore !== 'N/A' ? itemScore.toFixed(1) : 'N/A';
+                        const borderColor = itemScore !== 'N/A' && itemScore >= 8 ? '#27AE60' : itemScore !== 'N/A' && itemScore >= 6.5 ? '#F39C12' : '#E74C3C';
+
+                        html += `<div style="background: white; padding: 1rem; border-radius: 6px; border-left: 3px solid ${borderColor}; display: flex; justify-content: space-between; align-items: center;">
+                            <div style="flex: 1;">
+                                <strong style="display: block; color: var(--primary); font-size: 0.95rem; margin-bottom: 0.25rem;">${item.name}</strong>
+                                <small style="display: block; color: var(--text-light); font-size: 0.85rem; font-style: italic;">${item.desc}</small>
+                            </div>
+                            <div style="background: rgba(212, 175, 55, 0.1); padding: 0.75rem 1.25rem; border-radius: 20px; text-align: center; min-width: 80px; margin-left: 1rem;">
+                                <strong style="display: block; font-size: 1.3rem; color: var(--primary);">${displayScore}</strong>
+                                <small style="color: var(--text-light); font-size: 0.75rem;">/10</small>
+                            </div>
+                        </div>`;
+                    });
+
+                    html += `</div>
+                    <div style="background: linear-gradient(135deg, rgba(212, 175, 55, 0.15) 0%, rgba(212, 175, 55, 0.05) 100%); padding: 1rem; border-radius: 6px; text-align: center; border: 2px solid rgba(212, 175, 55, 0.3);">
+                        <small style="color: var(--text-light); text-transform: uppercase; font-weight: 600; font-size: 0.8rem; display: block; margin-bottom: 0.5rem;">Media de Sección</small>
+                        <div style="font-size: 1.8rem; font-weight: 700; color: var(--primary);">${sectionAverage}</div>
+                    </div>
+                    </div>`;
+                });
+
+                const finalScore = sectionAverages.length > 0 ? (sectionAverages.reduce((a, b) => a + b, 0) / sectionAverages.length).toFixed(2) : '0.00';
+
+                html += `<div style="background: linear-gradient(135deg, rgba(212, 175, 55, 0.3) 0%, rgba(212, 175, 55, 0.15) 100%); padding: 2.5rem; border-radius: var(--radius); border-left: 4px solid var(--secondary); margin: 2rem 0; text-align: center;">
+                    <div style="font-size: 1.1rem; color: var(--text-light); margin-bottom: 1rem; text-transform: uppercase; font-weight: 600;">Puntuación Final Promedio</div>
+                    <div style="font-size: 4rem; font-weight: 700; color: var(--primary); margin-bottom: 0.5rem;">${finalScore}</div>
+                </div>`;
+
+                html += `<div style="margin: 2rem 0; display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                    <div style="background: rgba(39, 174, 96, 0.05); padding: 1.5rem; border-radius: var(--radius); border-left: 4px solid #27AE60;">
+                        <h4 style="color: #27AE60; margin-bottom: 1rem;">Puntos Fuertes</h4>
+                        <p style="color: var(--text-dark); line-height: 1.6; white-space: pre-wrap; margin: 0;">${(currentPart.strongPoints || '').trim() || 'El jurado no ha puesto comentarios.'}</p>
+                    </div>
+                    <div style="background: rgba(243, 156, 18, 0.05); padding: 1.5rem; border-radius: var(--radius); border-left: 4px solid #F39C12;">
+                        <h4 style="color: #F39C12; margin-bottom: 1rem;">Puntos a Mejorar</h4>
+                        <p style="color: var(--text-dark); line-height: 1.6; white-space: pre-wrap; margin: 0;">${(currentPart.improvementPoints || '').trim() || 'El jurado no ha puesto comentarios.'}</p>
+                    </div>
+                </div>`;
+
+                html += `</div>`;
+
+                // TAB 2: RESULTADOS DEL CONCURSO (solo rankings por categoría)
+                html += `<div id="tab-2-content" style="display: none;">`;
+
+
+                const scoreSections = ['impresion', 'arneses', 'vestimenta', 'presentacion', 'amazona'];
+                const calcScore = (p) => {
+                    let score = 0, count = 0;
+                    scoreSections.forEach(s => {
+                        if (p.scores && p.scores[s] && p.scores[s].average > 0) { score += p.scores[s].average; count++; }
+                    });
+                    return count > 0 ? score / count : 0;
+                };
+
+                const allEvaluatedParticipants = this.participants.filter(p => this.getFinalScore(p) > 0);
+
+                const categories = [
+                    { id: 'binomio-jinete', name: 'Mejor Binomio Jinete' },
+                    { id: 'binomio-amazona', name: 'Mejor Binomio Amazona' },
+                    { id: 'conjunto-grupa', name: 'Mejor Conjunto a la Grupa' },
+                    { id: 'premio-vaquera', name: 'Premio Especial Esencia Vaquera' },
+                    { id: 'jinete-infantil', name: 'Mejor Jinete Infantil' }
+                ];
+
+                // Posición del participante en su categoría
+                const myCat = categories.find(c => c.id === currentPart.category);
+                const myCatResults = allEvaluatedParticipants
+                    .filter(p => p.category === currentPart.category)
+                    .map(p => ({ id: p.id, score: calcScore(p) }))
+                    .sort((a, b) => b.score - a.score);
+                const myEntry = myCatResults.find(r => r.id === currentPart.id);
+                const myPos = myEntry ? 1 + myCatResults.filter(r => Math.round(r.score * 100) > Math.round(myEntry.score * 100)).length : 0;
+
+                if (myPos > 0) {
+                    const myMedal = myPos === 1 ? '' : myPos === 2 ? '' : myPos === 3 ? '' : '';
+                    html += `<div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: white; padding: 1.5rem; border-radius: var(--radius); margin-bottom: 2rem; text-align: center;">
+                        <div style="font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.9; margin-bottom: 0.5rem;">Tu posición</div>
+                        <div style="font-size: 2.5rem; font-weight: 700; line-height: 1.2;">${myMedal} ${myPos}º <span style="font-size: 1.2rem; opacity: 0.85;">de ${myCatResults.length}</span></div>
+                        <div style="font-size: 0.95rem; opacity: 0.9; margin-top: 0.5rem;">${myCat ? myCat.name : ''}</div>
+                    </div>`;
+                }
+
+                if (allEvaluatedParticipants.length === 0) {
+                    html += '<div class="empty-state"><p>Sin resultados disponibles por el momento</p></div>';
+                } else {
+                    html += '<h3 style="color: var(--primary); margin: 0 0 1rem 0;">Clasificación por Categoría</h3>';
+
+                    categories.forEach(cat => {
+                        const catResults = allEvaluatedParticipants
+                            .filter(p => p.category === cat.id)
+                            .map(p => ({ id: p.id, dorsal: p.id, nombre: p.name || 'Sin nombre', score: calcScore(p) }))
+                            .sort((a, b) => b.score - a.score);
+
+                        html += `<div style="background: var(--bg-white); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: var(--shadow-sm); border-top: 4px solid var(--secondary);">
+                            <h4 style="color: var(--primary); margin: 0 0 1rem 0;">${cat.name}</h4>`;
+
+                        if (catResults.length === 0) {
+                            html += '<p style="color: var(--text-light); margin: 0;">Sin evaluaciones</p>';
+                        } else {
+                            html += '<table class="ranking-table" style="margin: 0;"><thead><tr><th style="width: 20%;">Posición</th><th style="width: 15%;">Dorsal</th><th style="width: 45%;">Participante</th><th style="width: 20%; text-align: center;">Puntuación</th></tr></thead><tbody>';
+
+                            catResults.forEach((item, idx) => {
+                                const pos = 1 + catResults.filter(o => Math.round(o.score * 100) > Math.round(item.score * 100)).length;
+                                const isMe = item.id === currentPart.id;
+                                const rowStyle = isMe
+                                    ? 'background: rgba(45, 80, 22, 0.15); outline: 2px solid var(--primary);'
+                                    : (pos <= 3 ? 'background: rgba(212, 175, 55, 0.08);' : '');
+
+                                html += `<tr style="${rowStyle}">
+                                    <td style="font-weight: 700; text-align: center;">${pos}º</td>
+                                    <td style="color: var(--primary); font-weight: 600; text-align: center;">${item.dorsal}</td>
+                                    <td><strong>${item.nombre}</strong>${isMe ? ' <span style="background: var(--primary); color: white; font-size: 0.75rem; padding: 0.15rem 0.5rem; border-radius: 10px; margin-left: 0.4rem;">TÚ</span>' : ''}</td>
+                                    <td style="font-weight: 700; color: var(--primary); text-align: center;">${item.score.toFixed(2)}/10</td>
+                                </tr>`;
+                            });
+
+                            html += '</tbody></table>';
+                        }
+
+                        html += '</div>';
+                    });
+                }
+
+                html += `</div>`;
+
+                content.innerHTML = html;
+            },
+
+            switchParticipantTab(tabNum) {
+                this.participantTab = tabNum;
+                for (let i = 1; i <= 2; i++) {
+                    const btn = document.getElementById(`tab-btn-${i}`);
+                    const cont = document.getElementById(`tab-${i}-content`);
+                    if (!btn || !cont) continue;
+                    if (i === tabNum) {
+                        cont.style.display = 'block';
+                        btn.style.color = 'var(--primary)';
+                        btn.style.borderBottom = '3px solid var(--primary)';
+                        btn.style.fontWeight = '700';
+                    } else {
+                        cont.style.display = 'none';
+                        btn.style.color = 'var(--text-light)';
+                        btn.style.borderBottom = '3px solid transparent';
+                        btn.style.fontWeight = '600';
+                    }
+                }
+            },
+
+
+            loadPublicResults() {
+                const content = document.getElementById('publicResultsContent') || document.getElementById('allResultsContent');
+
+                if (this.publicLoading) {
+                    if (content) content.innerHTML = `<div class="empty-state"><p>${this.t('loading')}</p></div>`;
+                    return;
+                }
+                if (!this.finalized || !this.resultsPublished) {
+                    if (content) {
+                        content.innerHTML = `<div class="empty-state"><p>${this.t('resultsPending')}</p></div>`;
+                    }
+                    return;
+                }
+
+
+                // Get evaluated participants - validar que realmente tengan datos
+                const evaluatedParticipants = this.participants.filter(p => this.getFinalScore(p) > 0);
+
+                if (evaluatedParticipants.length === 0) {
+                    if (content) {
+                        content.innerHTML = `<div class="empty-state"><p>${this.t('noResultsYet')}</p></div>`;
+                    }
+                    return;
+                }
+
+                let html = '';
+
+                // Categories for the competition
+                const categories = [
+                    { id: 'binomio-jinete', name: '' + this.t('binomioJinete') },
+                    { id: 'binomio-amazona', name: '' + this.t('binomioAmazona') },
+                    { id: 'conjunto-grupa', name: '' + this.t('conjuntoGrupa') },
+                    { id: 'premio-vaquera', name: '' + this.t('premioEspecial') },
+                    { id: 'jinete-infantil', name: '' + this.t('jineteInfantil') }
+                ];
+
+                // Display results ORGANIZED BY CATEGORY
+                html += '<div style="margin-bottom: 3rem;">';
+                html += `<h2 style="color: var(--primary); margin-bottom: 2rem; font-size: 1.5rem; text-align: center;">${this.t('resultsTitle')}</h2>`;
+
+                categories.forEach(cat => {
+                    // Calculate scores for each participant in this category
+                    const categoryResults = [];
+
+                    evaluatedParticipants.forEach(p => {
+                        // FILTRAR: Solo procesar participantes de esta categoría
+                        if (p.category !== cat.id) {
+                            return; // Skip participants from other categories
+                        }
+
+                        // VALIDAR: participante debe tener scores evaluados
+                        if (!p.scores || typeof p.scores !== 'object') {
+                            return; // Skip this participant
+                        }
+
+                        let categoryScore = 0;
+                        let sectionCount = 0;
+
+                        const sections = ['impresion', 'arneses', 'vestimenta', 'presentacion', 'amazona'];
+                        sections.forEach(section => {
+                            // VALIDAR: la sección debe existir y tener un average válido
+                            if (p.scores[section] &&
+                                typeof p.scores[section].average === 'number' &&
+                                p.scores[section].average > 0) {
+                                categoryScore += p.scores[section].average;
+                                sectionCount++;
+                            }
+                        });
+
+                        const avgScore = sectionCount > 0 ? (categoryScore / sectionCount) : 0;
+
+                        // VALIDAR: solo agregar si realmente tiene una puntuación válida y evaluada
+                        if (avgScore > 0 && sectionCount > 0) {
+                            categoryResults.push({
+                                dorsal: p.id,
+                                nombre: p.name || this.t('noName'),
+                                score: avgScore
+                            });
+                        }
+                    });
+
+                    // Sort by score descending
+                    categoryResults.sort((a, b) => b.score - a.score);
+
+                    // Display category section
+                    html += `<div style="background: var(--bg-white); border-radius: var(--radius); padding: 2rem; margin-bottom: 2rem; box-shadow: var(--shadow-sm); border-top: 4px solid var(--secondary);">
+                        <h3 style="color: var(--primary); margin-bottom: 1.5rem; font-size: 1.3rem; border-bottom: 2px solid var(--secondary); padding-bottom: 0.75rem;">
+                            ${cat.name}
+                        </h3>`;
+
+                    if (categoryResults.length === 0) {
+                        html += `<div class="empty-state"><p>${this.t('noEvalCat')}</p></div>`;
+                    } else {
+                        html += `<table class="ranking-table" style="margin: 0;"><thead><tr><th style="width: 20%;">${this.t('thPos')}</th><th style="width: 15%;">${this.t('thDorsal')}</th><th style="width: 45%;">${this.t('thName')}</th><th style="width: 20%; text-align: center;">${this.t('thScore')}</th></tr></thead><tbody>`;
+
+                        categoryResults.forEach((item, idx) => {
+                            const position = 1 + categoryResults.filter(o => Math.round(o.score * 100) > Math.round(item.score * 100)).length;
+                            let rowClass = '';
+
+                            if (position === 1) {
+                                rowClass = 'rank-gold';
+                            } else if (position === 2) {
+                                rowClass = 'rank-silver';
+                            } else if (position === 3) {
+                                rowClass = 'rank-bronze';
+                            } else {
+                            }
+
+                            html += `<tr class="${rowClass}">
+                                <td style="font-weight: 700; font-size: 1.1rem; text-align: center;">
+                                    ${this.currentLanguage === 'en' ? position + ([,'st','nd','rd'][position] || 'th') : position + 'º'}
+                                </td>
+                                <td style="font-weight: 600; color: var(--primary); text-align: center;">${item.dorsal}</td>
+                                <td><strong>${item.nombre}</strong></td>
+                                <td style="font-weight: 700; font-size: 1.1rem; color: var(--primary); text-align: center;">${item.score.toFixed(2)}/10</td>
+                            </tr>`;
+                        });
+
+                        html += '</tbody></table>';
+                    }
+
+                    html += '</div>';
+                });
+
+                html += '</div>';
+                if (content) content.innerHTML = html;
+            },
+
+            generateCredentials(name, horse, number) {
+                // Extraer primer nombre y convertir a minúsculas
+                const firstName = name.split(' ')[0].toLowerCase().trim();
+
+                // Remover acentos y caracteres especiales
+                const removeAccents = (str) => {
+                    const map = {
+                        'á': 'a', 'à': 'a', 'ä': 'a', 'â': 'a',
+                        'é': 'e', 'è': 'e', 'ë': 'e', 'ê': 'e',
+                        'í': 'i', 'ì': 'i', 'ï': 'i', 'î': 'i',
+                        'ó': 'o', 'ò': 'o', 'ö': 'o', 'ô': 'o',
+                        'ú': 'u', 'ù': 'u', 'ü': 'u', 'û': 'u',
+                        'ñ': 'n', 'ç': 'c'
+                    };
+                    return str.replace(/[áàäâéèëêíìïîóòöôúùüûñç]/gi, char => map[char.toLowerCase()] || char);
+                };
+
+                const cleanFirstName = removeAccents(firstName);
+
+                // Extraer número sin "0" delante
+                const numberWithoutZero = parseInt(number).toString();
+
+                // Generar username: nombre + número
+                // Contraseña genérica: atalaje2026
+                const username = cleanFirstName.replace(/[^a-z0-9]/gi, '') + numberWithoutZero;
+                const password = 'atalaje2026';
+
+                return { username, password };
+            },
+
+            addParticipant() {
+                const num = document.getElementById('newParticipantNum').value.trim();
+                const name = document.getElementById('newParticipantName').value.trim();
+                const horse = document.getElementById('newParticipantHorse').value.trim();
+                const category = document.getElementById('newParticipantCategory').value;
+
+                if (!num || !name || !category) {
+                    alert('Por favor, completa todos los campos');
+                    return;
+                }
+
+                if (!this.participants) this.participants = [];
+
+                const exists = this.participants.some(p => p.id === num);
+                if (exists) {
+                    alert('Ya existe un participante con ese dorsal');
+                    return;
+                }
+
+                // Generar credenciales automáticamente
+                const credentials = this.generateCredentials(name, horse, num);
+
+                // Verificar que el username sea único
+                let username = credentials.username;
+                let counter = 2;
+                while (this.participants.some(p => p.username === username)) {
+                    username = credentials.username + counter;
+                    counter++;
+                }
+
+                const newP = { id: num, name: name, category: category, username: username,
+                               scores: null, strongPoints: '', improvementPoints: '', evaluated: false };
+                const addBtn = document.querySelector('[onclick="app.addParticipant()"]');
+                if (addBtn) addBtn.disabled = true;
+                api.request('/rest/v1/participants', { method: 'POST', auth: true, prefer: 'return=minimal', body: this.participantToRow(newP) })
+                    .then(() => {
+                        this.participants.push(newP);
+                        this.afterParticipantAdded(username);
+                    })
+                    .catch(e => {
+                        if (e && e.code === '23505') this.notify('Ya existe un participante con ese dorsal o usuario.');
+                        else this.notify(this.connectionError(e));
+                    })
+                    .finally(() => { if (addBtn) addBtn.disabled = false; });
+            },
+
+            afterParticipantAdded(username) {
+                document.getElementById('newParticipantNum').value = '';
+                document.getElementById('newParticipantName').value = '';
+                document.getElementById('newParticipantHorse').value = '';
+                document.getElementById('newParticipantCategory').value = '';
+
+                this.notify('Participante añadido. Usuario: ' + username, 2500);
+                this.loadCredentialsTable();
+                this.initializeJudgeParticipantDropdown();
+            },
+
+            loadParticipantsList() {
+                const list = document.getElementById('participantsList');
+                if (!this.participants || this.participants.length === 0) {
+                    list.innerHTML = '<div class="empty-state"><p>No hay participantes registrados aún</p></div>';
+                    return;
+                }
+
+                let html = '<table class="participants-table"><thead><tr><th>Dorsal</th><th>Participante</th><th>Categoría</th><th>Usuario</th><th>Contraseña</th><th>Acciones</th></tr></thead><tbody>';
+                this.participants.forEach(p => {
+                    const catLabel = {
+                        'binomio-jinete': 'Jinete',
+                        'binomio-amazona': 'Amazona',
+                        'conjunto-grupa': 'Grupa',
+                        'premio-vaquera': 'Esencia Vaquera',
+                        'jinete-infantil': 'Infantil'
+                    }[p.category] || p.category;
+
+                    const credentials = p.username ? `${p.username}:atalaje2026` : 'N/A';
+
+                    html += `<tr>
+                        <td><strong>${p.id}</strong></td>
+                        <td>${p.name}</td>
+                        <td>${catLabel}</td>
+                        <td><code style="background: rgba(45, 80, 22, 0.1); padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.85rem;">${p.username || 'N/A'}</code></td>
+                        <td><code style="background: rgba(45, 80, 22, 0.1); padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.85rem;">${p.password || 'N/A'}</code></td>
+                        <td style="white-space: nowrap;">
+                            <button class="btn btn-primary" onclick="app.copyCredentials('${credentials}')" style="padding: 0.4rem 0.8rem; font-size: 0.75rem; margin-right: 0.5rem;">Copiar</button>
+                            <button class="btn btn-danger" onclick="app.removeParticipant('${p.id}')" style="padding: 0.4rem 0.8rem; font-size: 0.75rem;">Eliminar</button>
+                        </td>
+                    </tr>`;
+                });
+                html += '</tbody></table>';
+                list.innerHTML = html;
+            },
+
+            copyCredentials(credentials) {
+                navigator.clipboard.writeText(credentials).then(() => {
+                    alert('Credenciales copiadas al portapapeles:\n' + credentials);
+                }).catch(err => {
+                    alert('Credenciales:\n' + credentials + '\n\n(Copia manual del navegador)');
+                });
+            },
+
+            loadCredentialsTable() {
+                const tableContainer = document.getElementById('credentialsTable');
+                if (!this.participants || this.participants.length === 0) {
+                    tableContainer.innerHTML = '<div class="empty-state"><p>No hay participantes registrados aún</p></div>';
+                    return;
+                }
+
+                let html = '<table class="ranking-table" style="width: 100%;"><thead><tr><th>Dorsal</th><th>Nombre</th><th>Usuario</th><th>Contraseña</th><th>Acción</th></tr></thead><tbody>';
+
+                this.participants.forEach(p => {
+                    const username = p.username || 'N/A';
+                    const password = 'atalaje2026';
+                    const credentials = `${username}:${password}`;
+
+                    html += `<tr>
+                        <td><strong>${p.id}</strong></td>
+                        <td>${p.name}</td>
+                        <td><code style="background: rgba(45, 80, 22, 0.1); padding: 0.35rem 0.75rem; border-radius: 4px; font-size: 0.9rem; font-weight: 600;">${username}</code></td>
+                        <td><code style="background: rgba(212, 175, 55, 0.1); padding: 0.35rem 0.75rem; border-radius: 4px; font-size: 0.9rem; font-weight: 600;">${password}</code></td>
+                        <td style="white-space: nowrap;">
+                            <button class="btn btn-primary" onclick="app.copyCredentials('${credentials}')" style="padding: 0.5rem 1rem; font-size: 0.85rem; margin-right: 0.5rem;">Copiar</button>
+                            <button class="btn btn-danger" onclick="app.removeParticipant('${p.id}')" style="padding: 0.5rem 1rem; font-size: 0.85rem;">Eliminar</button>
+                        </td>
+                    </tr>`;
+                });
+
+                html += '</tbody></table>';
+                tableContainer.innerHTML = html;
+            },
+
+            removeParticipant(id) {
+                const p = this.participants.find(x => x.id === id);
+                this.confirmDialog(`¿Eliminar al participante ${p ? p.id + ' - ' + p.name : id}? Se perderá su evaluación.`, () => {
+                    api.request('/rest/v1/participants?id=eq.' + encodeURIComponent(id), { method: 'DELETE', auth: true })
+                        .then(() => {
+                            this.participants = this.participants.filter(x => x.id !== id);
+                            this.loadCredentialsTable();
+                            this.initializeJudgeParticipantDropdown();
+                            this.notify('Participante eliminado');
+                        })
+                        .catch(e => this.notify(this.connectionError(e)));
+                }, 'Eliminar', true);
+            },
+
+            publishResults() {
+                if (!this.participants || this.participants.length === 0) {
+                    alert('No hay participantes registrados.');
+                    return;
+                }
+                const pending = this.participants.filter(p => this.getFinalScore(p) === 0);
+                const ties = [];
+                this.CATEGORIES.forEach(c => {
+                    const seen = {};
+                    this.participants.filter(p => p.category === c.id && this.getFinalScore(p) > 0).forEach(p => {
+                        const k = Math.round(this.getFinalScore(p) * 100);
+                        (seen[k] = seen[k] || []).push(p);
+                    });
+                    Object.keys(seen).forEach(k => {
+                        if (seen[k].length > 1) ties.push(`${c.name}: ${seen[k].map(p => p.name + ' (dorsal ' + p.id + ')').join(' y ')} empatan con ${(k / 100).toFixed(2)}`);
+                    });
+                });
+                let msg = pending.length > 0
+                    ? `Faltan ${pending.length} participante(s) por evaluar y no aparecerán en las clasificaciones. ¿Publicar igualmente?`
+                    : '¿Publicar los resultados? Los verán los participantes y el público.';
+                if (ties.length > 0) msg = 'ATENCIÓN, hay empates:\n' + ties.join('\n') + '\n\n' + msg;
+                this.confirmDialog(msg, () => this.setPublished(true), 'Publicar');
+            },
+
+            unpublishResults() {
+                this.confirmDialog('¿Ocultar los resultados? Dejarán de ser visibles para participantes y público.', () => this.setPublished(false), 'Ocultar', true);
+            },
+
+            setPublished(value) {
+                api.request('/rest/v1/settings?id=eq.1', { method: 'PATCH', auth: true, prefer: 'return=representation',
+                    body: { results_published: value, updated_at: new Date().toISOString() } })
+                    .then(res => {
+                        if (!res || res.length === 0) throw new Error('nada guardado');
+                        this.finalized = value;
+                        this.resultsPublished = value;
+                        this.updatePublishStatus();
+                        if (document.getElementById('summary') && document.getElementById('summary').classList.contains('active')) this.displaySummary();
+                        this.notify(value ? 'Resultados publicados' : 'Resultados ocultados');
+                    })
+                    .catch(e => this.notify(this.connectionError(e)));
+            },
+
+            updatePublishStatus() {
+                const statusEl = document.getElementById('publishStatus');
+                const statusDiv = document.getElementById('publishStatusDiv');
+                if (this.resultsPublished) {
+                    statusEl.textContent = 'Publicados';
+                    statusEl.style.color = 'var(--success)';
+                    statusDiv.style.borderLeftColor = 'var(--success)';
+                } else {
+                    statusEl.textContent = 'No Publicados';
+                    statusEl.style.color = 'var(--danger)';
+                    statusDiv.style.borderLeftColor = 'var(--secondary)';
+                }
+            },
+
+            switchTab(tabName) {
+                const clicked = (window.event && window.event.target && window.event.target.closest)
+                    ? window.event.target.closest('.tab-btn') : null;
+
+                // Ocultar las demás pestañas del mismo panel
+                document.querySelectorAll('nav.tabs-nav ~ .tab-content').forEach(tab => tab.classList.remove('active'));
+                const tab = document.getElementById(tabName);
+                if (tab) tab.classList.add('active');
+
+                if (clicked && clicked.parentElement) {
+                    clicked.parentElement.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+                    clicked.classList.add('active');
+                }
+
+                this.renderJudgeTab(tabName);
+                if (this.currentRole === 'judge' && tabName !== 'evaluation') {
+                    this.loadJudgeData().then(() => {
+                        const active = document.querySelector('#judgeView > .tab-content.active');
+                        if (active && active.id === tabName) this.renderJudgeTab(tabName);
+                        this.updatePublishStatus();
+                    }).catch(() => {});
+                }
+            },
+
+            renderJudgeTab(tabName) {
+                if (tabName === 'publicResults') this.loadPublicResults();
+                if (tabName === 'evaluation') this.initializeJudgeParticipantDropdown();
+                if (tabName === 'ranking') this.displayRanking();
+                if (tabName === 'summary') this.displaySummary();
+                if (tabName === 'management') this.loadCredentialsTable();
+            },
+
+            displayRanking() {
+                const content = document.getElementById('rankingContent');
+                const participants = this.participants || [];
+
+                if (participants.length === 0) {
+                    content.innerHTML = '<div class="empty-state"><p>No hay participantes registrados aún</p></div>';
+                    return;
+                }
+
+                let html = '';
+                this.CATEGORIES.forEach(cat => {
+                    const inCat = participants.filter(p => p.category === cat.id);
+                    const rows = inCat.map(p => ({ dorsal: p.id, nombre: p.name, score: this.getFinalScore(p) }));
+                    const done = rows.filter(r => r.score > 0).sort((a, b) => b.score - a.score);
+                    const pending = rows.filter(r => r.score === 0).sort((a, b) => parseInt(a.dorsal) - parseInt(b.dorsal));
+
+                    html += `<div style="margin-bottom: 2rem; padding: 1.5rem; background: white; border-radius: var(--radius); box-shadow: var(--shadow-sm); border-top: 4px solid var(--secondary);">
+                        <div style="display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem;">
+                            <h4 style="color: var(--primary); margin: 0; font-size: 1.15rem;">${cat.name}</h4>
+                            <small style="color: var(--text-light); font-weight: 600;">${done.length} de ${inCat.length} evaluados</small>
+                        </div>`;
+
+                    if (inCat.length === 0) {
+                        html += '<p style="color: var(--text-light); margin: 0;">Sin participantes en esta categoría</p>';
+                    } else {
+                        html += '<table class="ranking-table"><thead><tr><th style="width: 22%;">Posición</th><th style="width: 15%;">Dorsal</th><th>Participante</th><th style="width: 22%; text-align: center;">Puntuación</th></tr></thead><tbody>';
+
+                        done.forEach(item => {
+                            const pos = 1 + done.filter(o => Math.round(o.score * 100) > Math.round(item.score * 100)).length;
+                            const rowClass = pos === 1 ? 'rank-gold' : pos === 2 ? 'rank-silver' : pos === 3 ? 'rank-bronze' : '';
+                            const label = (cat.single && pos === 1) ? '1º - Ganador/a' : pos + 'º';
+                            html += `<tr class="${rowClass}">
+                                <td style="font-weight: 700;">${label}</td>
+                                <td style="font-weight: 600; color: var(--primary);">${item.dorsal}</td>
+                                <td><strong>${item.nombre}</strong></td>
+                                <td style="font-weight: 700; color: var(--primary); text-align: center;">${item.score.toFixed(2)}</td>
+                            </tr>`;
+                        });
+
+                        pending.forEach(item => {
+                            html += `<tr style="color: var(--text-light);">
+                                <td>-</td>
+                                <td style="font-weight: 600;">${item.dorsal}</td>
+                                <td>${item.nombre}</td>
+                                <td style="text-align: center; font-style: italic;">Pendiente</td>
+                            </tr>`;
+                        });
+
+                        html += '</tbody></table>';
+                    }
+                    html += '</div>';
+                });
+
+                content.innerHTML = html;
+            },
+
+            displaySummary() {
+                const content = document.getElementById('summaryContent');
+                const participants = this.participants || [];
+
+                if (participants.length === 0) {
+                    content.innerHTML = '<div class="empty-state"><p>No hay participantes registrados aún</p></div>';
+                    return;
+                }
+
+                const totalCount = participants.length;
+                const pendingList = participants.filter(p => this.getFinalScore(p) === 0);
+                const pendingCount = pendingList.length;
+                const evaluatedCount = totalCount - pendingCount;
+                const percent = Math.round((evaluatedCount / totalCount) * 100);
+
+                let html = '<div class="summary-stats">';
+                [[evaluatedCount, 'Evaluados'], [totalCount, 'Total Registrados'], [pendingCount, 'Pendientes'], [percent + '%', 'Porcentaje']].forEach(([n, label]) => {
+                    html += `<div class="stat-box"><div class="stat-number">${n}</div><div class="stat-label">${label}</div></div>`;
+                });
+                html += '</div>';
+
+                if (pendingCount === 0) {
+                    html += `<div class="validation-banner success"><div class="validation-text">
+                        <strong>Todos evaluados</strong><br>
+                        <small>Todos los participantes tienen la evaluación completa. Puedes publicar los resultados.</small>
+                    </div></div>`;
+                } else {
+                    html += `<div class="validation-banner warning"><div class="validation-text">
+                        <strong>Faltan ${pendingCount} participante(s) por evaluar</strong><br>
+                        <small>${pendingList.map(p => p.id + ' - ' + p.name).join(', ')}</small>
+                    </div></div>`;
+                }
+
+                html += '<h4 style="color: var(--primary); margin-top: 2rem; margin-bottom: 1rem;">Resumen por Participante</h4>';
+                html += '<table class="ranking-table"><thead><tr><th>Dorsal</th><th>Nombre</th><th>Categoría</th><th>Estado</th><th>Puntuación Final</th></tr></thead><tbody>';
+
+                const catName = id => (this.CATEGORIES.find(c => c.id === id) || {}).name || id;
+                participants.slice().sort((a, b) => parseInt(a.id) - parseInt(b.id)).forEach(p => {
+                    const score = this.getFinalScore(p);
+                    html += `<tr>
+                        <td style="font-weight: 600; color: var(--primary);">${p.id}</td>
+                        <td>${p.name}</td>
+                        <td>${catName(p.category)}</td>
+                        <td style="color: ${score > 0 ? 'var(--success)' : 'var(--warning)'}; font-weight: 600;">${score > 0 ? 'Completa' : 'Pendiente'}</td>
+                        <td style="font-weight: 700; color: var(--primary);">${score > 0 ? score.toFixed(2) : '-'}</td>
+                    </tr>`;
+                });
+                html += '</tbody></table>';
+
+                html += `<div style="margin-top: 2rem;">
+                    <button class="btn btn-success btn-full" onclick="app.publishResults()" style="padding: 1rem; font-size: 1rem; font-weight: 600;">Publicar Resultados</button>
+                </div>`;
+
+                content.innerHTML = html;
+            },
+
+            setupEventListeners() {
+                // Already done via onclick handlers
+            }
+        };
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', () => {
+            try { localStorage.removeItem('atalaje-app'); } catch (e) {}
+            app.init();
+        });
+
+    </script>
+</body>
+</html>
