@@ -1293,7 +1293,8 @@
         @media (max-width: 600px) {
             .ranking-table th, .ranking-table td { padding: 0.55rem 0.35rem !important; font-size: 0.82rem !important; }
             .ranking-table th { width: auto !important; }
-            .ranking-table td { overflow-wrap: anywhere; }
+            .ranking-table td:nth-child(3) { overflow-wrap: anywhere; }
+            .ranking-table td:nth-child(2), .ranking-table td:nth-child(4) { white-space: nowrap; }
             .th-lg { display: none; }
             .th-sm { display: inline; }
             .rank-card { padding: 1rem 0.75rem !important; }
@@ -1517,7 +1518,7 @@ Fuengirola · 8 de octubre de 2026</p>
             <!-- SPECTATOR VIEW -->
             <div id="spectatorView" class="tab-content">
                 <!-- Language Header -->
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 1.5rem; background: white; border-bottom: 1px solid #E8E8E8;">
+                <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: space-between; align-items: center; padding: 1.25rem 1rem; background: white; border-bottom: 1px solid #E8E8E8;">
                     <h2 style="margin: 0; font-size: 1.3rem; color: var(--primary); font-weight: 600;">La Peña Los Caballistas</h2>
                     <div style="display: flex; gap: 0.5rem; align-items: center;">
                         <button onclick="app.setLanguage('es')" style="padding: 0.4rem 0.8rem; background: transparent; border: 1px solid #E0E0E0; border-radius: 4px; cursor: pointer; font-weight: 500; font-size: 0.85rem; color: var(--primary);">ES</button>
@@ -1835,6 +1836,44 @@ Fuengirola · 8 de octubre de 2026</p>
                 '003': 'pass003'
             },
 
+            // Corrector de nombres y razas: mayúscula al empezar cada palabra y tildes habituales
+            NAME_FIXES: (() => {
+                const words = ('José Jesús María Ángel Ángela Ángeles Álvaro Adrián Andrés Ramón Joaquín Martín Agustín Sebastián Julián Iván Rubén Óscar Víctor Héctor Raúl Germán Darío Nicolás Tomás Matías Elías Tobías Jeremías Zacarías Isaías Saúl Josué Moisés Ginés Simón Efraín Benjamín Fermín Valentín Cristóbal Jerónimo Aníbal Dámaso Lucía Sofía Inés Mónica Verónica Bárbara Belén Rocío Fátima Noemí Concepción Asunción Encarnación Ascensión Purificación Begoña Íñigo Estefanía Natalia Cecilia Amalia Rosalía Eugenia Leticia Mª ' +
+                    'Pérez García Martínez López González Rodríguez Fernández Sánchez Gómez Díaz Hernández Álvarez Jiménez Giménez Muñoz Gutiérrez Ramírez Domínguez Vázquez Suárez Méndez Marín Núñez Sáez Sáenz Benítez Márquez Velázquez Muñiz Cortés Gálvez Bermúdez Cárdenas Beltrán Calderón Galán Durán Millán Román Guzmán Padrón Carrión León Rincón Ibáñez Yáñez Ordóñez Mármol Ávila Úbeda Andújar Cáceres Córdoba Málaga Cádiz Jaén Almería Écija Vélez Pavón Chacón Ríos Garcés Godínez Narváez Alarcón Barragán Merchán Morán Pinzón Quirós Valdés Rondón Pozón Montón Cañete Carreño Dueñas Treviño Patiño Ortuño Peláez Sáiz Díez Báez Páez Ruíz ' +
+                    'Española Español Árabe Inglés Bretón Percherón Frisón Menorquín Mallorquín Asturcón Marismeño Línea Andaluz Lusitano Cartujano Cartujana Hispano Anglo Pura Raza Cruzado Cruzada Cruce Sangre Poni Pony Jaca Navarra Losino Pottoka Appaloosa Hannoveriano Holsteiner Trakehner Mustang Burguete Caballo Yegua').split(/\s+/);
+                const map = {};
+                words.forEach(w => {
+                    const key = w.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+                    if (w === 'Ruíz') { map.ruiz = 'Ruiz'; return; }
+                    map[key] = w;
+                });
+                map.pre = 'PRE'; map.psi = 'PSI';
+                return map;
+            })(),
+
+            fixName(text) {
+                const small = ['de', 'del', 'la', 'las', 'los', 'el', 'y', 'e', 'con', 'da', 'do', 'van', 'von'];
+                let clean = String(text || '').replace(/\s+/g, ' ').trim();
+                if (!clean) return '';
+                // Razas compuestas que se escriben con guion
+                clean = clean.replace(/\b(hispano|anglo)[\s-]+(arabe|árabe|breton|bretón)\b/gi, '$1-$2');
+                const fixPart = (part) => {
+                    if (!part) return part;
+                    const key = part.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+                    if (this.NAME_FIXES[key]) return this.NAME_FIXES[key];
+                    const lower = part.toLowerCase();
+                    // Si la palabra ya mezcla mayúsculas y minúsculas (p. ej. McDonald), se respeta
+                    const mixed = part !== lower && part !== part.toUpperCase();
+                    const base = mixed ? part : lower;
+                    return base.charAt(0).toUpperCase() + base.slice(1);
+                };
+                return clean.split(' ').map((word, i) => {
+                    const lw = word.toLowerCase();
+                    if (i > 0 && small.includes(lw)) return lw;
+                    return word.split('-').map(fixPart).join('-');
+                }).join(' ');
+            },
+
             esc(t) {
                 return String(t == null ? '' : t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
             },
@@ -1867,7 +1906,8 @@ Fuengirola · 8 de octubre de 2026</p>
                 input.focus();
                 const close = () => wrap.remove();
                 const save = () => {
-                    const breed = input.value.trim();
+                    const breed = this.fixName(input.value);
+                    input.value = breed;
                     const btn = wrap.querySelector('[data-act="yes"]');
                     btn.disabled = true; btn.textContent = 'Guardando...';
                     api.request('/rest/v1/participants?id=eq.' + encodeURIComponent(id), { method: 'PATCH', auth: true, prefer: 'return=representation',
@@ -1886,6 +1926,7 @@ Fuengirola · 8 de octubre de 2026</p>
                 wrap.querySelector('[data-act="no"]').onclick = close;
                 wrap.querySelector('[data-act="yes"]').onclick = save;
                 input.addEventListener('keydown', e => { if (e.key === 'Enter') save(); });
+                input.addEventListener('blur', () => { input.value = this.fixName(input.value); });
                 wrap.addEventListener('click', e => { if (e.target === wrap) close(); });
             },
 
@@ -2816,7 +2857,7 @@ Fuengirola · 8 de octubre de 2026</p>
                     <div style="font-size: 4rem; font-weight: 700; color: var(--primary); margin-bottom: 0.5rem;">${finalScore}</div>
                 </div>`;
 
-                html += `<div style="margin: 2rem 0; display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                html += `<div style="margin: 2rem 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem;">
                     <div style="background: rgba(39, 174, 96, 0.05); padding: 1.5rem; border-radius: var(--radius); border-left: 4px solid #27AE60;">
                         <h4 style="color: #27AE60; margin-bottom: 1rem;">Puntos Fuertes</h4>
                         <p style="color: var(--text-dark); line-height: 1.6; white-space: pre-wrap; margin: 0;">${(currentPart.strongPoints || '').trim() || 'El jurado no ha puesto comentarios.'}</p>
@@ -3100,9 +3141,9 @@ Fuengirola · 8 de octubre de 2026</p>
 
             addParticipant() {
                 const num = document.getElementById('newParticipantNum').value.trim();
-                const name = document.getElementById('newParticipantName').value.trim();
+                const name = this.fixName(document.getElementById('newParticipantName').value);
                 const horse = '';
-                const breed = (document.getElementById('newParticipantBreed').value || '').trim();
+                const breed = this.fixName(document.getElementById('newParticipantBreed').value);
                 const category = document.getElementById('newParticipantCategory').value;
 
                 if (!num || !name || !category) {
@@ -3445,7 +3486,10 @@ Fuengirola · 8 de octubre de 2026</p>
             },
 
             setupEventListeners() {
-                // Already done via onclick handlers
+                ['newParticipantName', 'newParticipantBreed'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.addEventListener('blur', () => { el.value = this.fixName(el.value); });
+                });
             }
         };
 
