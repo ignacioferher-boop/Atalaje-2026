@@ -1288,6 +1288,16 @@
             #judgeView .content-hero h2 { font-size: 2rem; }
             #judgeView .content-hero p { font-size: 1.2rem; }
         }
+        /* Clasificaciones legibles en el móvil: la nota siempre a la vista */
+        .th-sm { display: none; }
+        @media (max-width: 600px) {
+            .ranking-table th, .ranking-table td { padding: 0.55rem 0.35rem !important; font-size: 0.82rem !important; }
+            .ranking-table th { width: auto !important; }
+            .ranking-table td { overflow-wrap: anywhere; }
+            .th-lg { display: none; }
+            .th-sm { display: inline; }
+            .rank-card { padding: 1rem 0.75rem !important; }
+        }
     </style>
 </head>
 <body>
@@ -1451,7 +1461,7 @@ Fuengirola · 8 de octubre de 2026</p>
                                 <input type="text" id="newParticipantName" placeholder="Nombre del Participante" style="padding: 0.75rem; border: 2px solid var(--border); border-radius: var(--radius); font-size: 1rem;">
                             </div>
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
-                                <input type="text" id="newParticipantHorse" placeholder="Nombre del Caballo" style="padding: 0.75rem; border: 2px solid var(--border); border-radius: var(--radius); font-size: 1rem; display: none;">
+                                <input type="text" id="newParticipantBreed" placeholder="Raza del caballo (ej.: Pura Raza Española)" style="padding: 0.75rem; border: 2px solid var(--border); border-radius: var(--radius); font-size: 1rem;">
                                 <select id="newParticipantCategory" style="padding: 0.75rem; border: 2px solid var(--border); border-radius: var(--radius); font-size: 1rem;">
                                     <option value="">-- Selecciona Categoría --</option>
                                     <option value="binomio-jinete">Mejor Binomio Jinete</option>
@@ -1825,6 +1835,63 @@ Fuengirola · 8 de octubre de 2026</p>
                 '003': 'pass003'
             },
 
+            esc(t) {
+                return String(t == null ? '' : t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+            },
+
+            // Raza del caballo bajo el nombre del participante (en todas las clasificaciones)
+            breedLine(breed) {
+                if (!breed) return '';
+                return `<div style="font-size: 0.78rem; font-weight: 500; color: var(--text-light); margin-top: 0.15rem;">${this.esc(breed)}</div>`;
+            },
+
+            editBreed(id) {
+                const p = (this.participants || []).find(x => x.id === id);
+                if (!p) return;
+                const old = document.getElementById('appModal');
+                if (old) old.remove();
+                const wrap = document.createElement('div');
+                wrap.id = 'appModal';
+                wrap.className = 'app-modal-backdrop';
+                wrap.innerHTML = `<div class="app-modal" role="dialog" aria-modal="true">
+                    <p style="font-weight: 700;">Raza del caballo de ${this.esc(p.name)} (dorsal ${this.esc(p.id)})</p>
+                    <input type="text" id="breedInput" maxlength="80" placeholder="Ej.: Pura Raza Española" style="width: 100%; box-sizing: border-box; padding: 0.75rem; border: 2px solid var(--border); border-radius: var(--radius); font-size: 1rem; margin-bottom: 1.25rem;">
+                    <div class="app-modal-actions">
+                        <button class="btn" data-act="no" style="background: #eee; color: #333;">Cancelar</button>
+                        <button class="btn btn-primary" data-act="yes">Guardar</button>
+                    </div>
+                </div>`;
+                document.body.appendChild(wrap);
+                const input = wrap.querySelector('#breedInput');
+                input.value = p.breed || '';
+                input.focus();
+                const close = () => wrap.remove();
+                const save = () => {
+                    const breed = input.value.trim();
+                    const btn = wrap.querySelector('[data-act="yes"]');
+                    btn.disabled = true; btn.textContent = 'Guardando...';
+                    api.request('/rest/v1/participants?id=eq.' + encodeURIComponent(id), { method: 'PATCH', auth: true, prefer: 'return=representation',
+                        body: { breed: breed, updated_at: new Date().toISOString() } })
+                        .then(res => {
+                            if (!res || res.length === 0) throw new Error('nada guardado');
+                            p.breed = breed;
+                            close();
+                            this.loadCredentialsTable();
+                            const box = document.getElementById('breedValue-' + id);
+                            if (box) box.textContent = breed || 'Sin indicar';
+                            this.notify('Raza guardada', 2000);
+                        })
+                        .catch(e => { btn.disabled = false; btn.textContent = 'Guardar'; this.notify(this.connectionError(e)); });
+                };
+                wrap.querySelector('[data-act="no"]').onclick = close;
+                wrap.querySelector('[data-act="yes"]').onclick = save;
+                input.addEventListener('keydown', e => { if (e.key === 'Enter') save(); });
+                wrap.addEventListener('click', e => { if (e.target === wrap) close(); });
+            },
+
+            // Categorías con trofeo único: solo el 1º se destaca
+            isSingle(catId) { return catId === 'premio-vaquera' || catId === 'jinete-infantil'; },
+
             SECTION_IDS: ['impresion', 'arneses', 'vestimenta', 'presentacion', 'amazona'],
 
             getScoreData(p) {
@@ -1887,7 +1954,7 @@ Fuengirola · 8 de octubre de 2026</p>
 
             // ----- Datos remotos -----
             rowToParticipant(r) {
-                const p = { id: String(r.id), name: r.name, category: r.category, username: r.username || '',
+                const p = { id: String(r.id), name: r.name, category: r.category, username: r.username || '', breed: r.breed || '',
                     scores: r.scores || null, strongPoints: r.strong_points || '', improvementPoints: r.improvement_points || '',
                     evaluated: !!r.evaluated };
                 if (p.scores) this.migrateScores(p.scores);
@@ -1895,7 +1962,7 @@ Fuengirola · 8 de octubre de 2026</p>
             },
 
             participantToRow(p) {
-                return { id: p.id, name: p.name, category: p.category, username: p.username,
+                return { id: p.id, name: p.name, category: p.category, username: p.username, breed: p.breed || '',
                     scores: p.scores || null, strong_points: p.strongPoints || '', improvement_points: p.improvementPoints || '',
                     evaluated: !!p.evaluated, updated_at: new Date().toISOString() };
             },
@@ -2414,7 +2481,12 @@ Fuengirola · 8 de octubre de 2026</p>
                         </div>
                         <div>
                             <small style="color: var(--text-light); text-transform: uppercase; font-weight: 600; font-size: 0.75rem; letter-spacing: 0.5px;">Categoría</small>
-                            <p style="margin: 0.5rem 0 0 0; font-size: 1rem; font-weight: 600; color: var(--primary);">${participant.category}</p>
+                            <p style="margin: 0.5rem 0 0 0; font-size: 1rem; font-weight: 600; color: var(--primary);">${(this.CATEGORIES.find(c => c.id === participant.category) || {}).name || participant.category}</p>
+                        </div>
+                        <div>
+                            <small style="color: var(--text-light); text-transform: uppercase; font-weight: 600; font-size: 0.75rem; letter-spacing: 0.5px;">Raza del caballo</small>
+                            <p style="margin: 0.5rem 0 0 0; font-size: 1rem; font-weight: 600; color: var(--text-dark);"><span id="breedValue-${participant.id}">${participant.breed ? this.esc(participant.breed) : 'Sin indicar'}</span>
+                            <button type="button" onclick="app.editBreed('${participant.id}')" style="margin-left: 0.5rem; background: none; border: 1px solid var(--border); border-radius: 6px; padding: 0.2rem 0.6rem; font-size: 0.8rem; cursor: pointer; color: var(--primary);">Editar</button></p>
                         </div>
                     </div>
 
@@ -2806,28 +2878,28 @@ Fuengirola · 8 de octubre de 2026</p>
                     categories.forEach(cat => {
                         const catResults = allEvaluatedParticipants
                             .filter(p => p.category === cat.id)
-                            .map(p => ({ id: p.id, dorsal: p.id, nombre: p.name || 'Sin nombre', score: calcScore(p) }))
+                            .map(p => ({ id: p.id, dorsal: p.id, nombre: p.name || 'Sin nombre', breed: p.breed, score: calcScore(p) }))
                             .sort((a, b) => b.score - a.score);
 
-                        html += `<div style="background: var(--bg-white); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: var(--shadow-sm); border-top: 4px solid var(--secondary);">
+                        html += `<div class="rank-card" style="background: var(--bg-white); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: var(--shadow-sm); border-top: 4px solid var(--secondary);">
                             <h4 style="color: var(--primary); margin: 0 0 1rem 0;">${cat.name}</h4>`;
 
                         if (catResults.length === 0) {
                             html += '<p style="color: var(--text-light); margin: 0;">Sin evaluaciones</p>';
                         } else {
-                            html += '<table class="ranking-table" style="margin: 0;"><thead><tr><th style="width: 20%;">Posición</th><th style="width: 15%;">Dorsal</th><th style="width: 45%;">Participante</th><th style="width: 20%; text-align: center;">Puntuación</th></tr></thead><tbody>';
+                            html += '<table class="ranking-table" style="margin: 0;"><thead><tr><th style="width: 20%;"><span class="th-lg">Posición</span><span class="th-sm">Pos.</span></th><th style="width: 15%;"><span class="th-lg">Dorsal</span><span class="th-sm">Nº</span></th><th style="width: 45%;">Participante</th><th style="width: 20%; text-align: center;"><span class="th-lg">Puntuación</span><span class="th-sm">Nota</span></th></tr></thead><tbody>';
 
                             catResults.forEach((item, idx) => {
                                 const pos = 1 + catResults.filter(o => Math.round(o.score * 100) > Math.round(item.score * 100)).length;
                                 const isMe = item.id === currentPart.id;
                                 const rowStyle = isMe
                                     ? 'background: rgba(45, 80, 22, 0.15); outline: 2px solid var(--primary);'
-                                    : (pos <= 3 ? 'background: rgba(212, 175, 55, 0.08);' : '');
+                                    : ((this.isSingle(cat.id) ? pos === 1 : pos <= 3) ? 'background: rgba(212, 175, 55, 0.08);' : '');
 
                                 html += `<tr style="${rowStyle}">
-                                    <td style="font-weight: 700; text-align: center;">${pos}º</td>
+                                    <td style="font-weight: 700; text-align: center;">${(this.isSingle(cat.id) && pos === 1) ? '1º - Ganador/a' : pos + 'º'}</td>
                                     <td style="color: var(--primary); font-weight: 600; text-align: center;">${item.dorsal}</td>
-                                    <td><strong>${item.nombre}</strong>${isMe ? ' <span style="background: var(--primary); color: white; font-size: 0.75rem; padding: 0.15rem 0.5rem; border-radius: 10px; margin-left: 0.4rem;">TÚ</span>' : ''}</td>
+                                    <td><strong>${item.nombre}</strong>${this.breedLine(item.breed)}${isMe ? ' <span style="background: var(--primary); color: white; font-size: 0.75rem; padding: 0.15rem 0.5rem; border-radius: 10px; margin-left: 0.4rem;">TÚ</span>' : ''}</td>
                                     <td style="font-weight: 700; color: var(--primary); text-align: center;">${item.score.toFixed(2)}/10</td>
                                 </tr>`;
                             });
@@ -2941,6 +3013,7 @@ Fuengirola · 8 de octubre de 2026</p>
                             categoryResults.push({
                                 dorsal: p.id,
                                 nombre: p.name || this.t('noName'),
+                                breed: p.breed,
                                 score: avgScore
                             });
                         }
@@ -2950,7 +3023,7 @@ Fuengirola · 8 de octubre de 2026</p>
                     categoryResults.sort((a, b) => b.score - a.score);
 
                     // Display category section
-                    html += `<div style="background: var(--bg-white); border-radius: var(--radius); padding: 2rem; margin-bottom: 2rem; box-shadow: var(--shadow-sm); border-top: 4px solid var(--secondary);">
+                    html += `<div class="rank-card" style="background: var(--bg-white); border-radius: var(--radius); padding: 2rem; margin-bottom: 2rem; box-shadow: var(--shadow-sm); border-top: 4px solid var(--secondary);">
                         <h3 style="color: var(--primary); margin-bottom: 1.5rem; font-size: 1.3rem; border-bottom: 2px solid var(--secondary); padding-bottom: 0.75rem;">
                             ${cat.name}
                         </h3>`;
@@ -2958,7 +3031,7 @@ Fuengirola · 8 de octubre de 2026</p>
                     if (categoryResults.length === 0) {
                         html += `<div class="empty-state"><p>${this.t('noEvalCat')}</p></div>`;
                     } else {
-                        html += `<table class="ranking-table" style="margin: 0;"><thead><tr><th style="width: 20%;">${this.t('thPos')}</th><th style="width: 15%;">${this.t('thDorsal')}</th><th style="width: 45%;">${this.t('thName')}</th><th style="width: 20%; text-align: center;">${this.t('thScore')}</th></tr></thead><tbody>`;
+                        html += `<table class="ranking-table" style="margin: 0;"><thead><tr><th style="width: 20%;"><span class="th-lg">${this.t('thPos')}</span><span class="th-sm">${this.currentLanguage === 'en' ? 'Pos.' : 'Pos.'}</span></th><th style="width: 15%;"><span class="th-lg">${this.t('thDorsal')}</span><span class="th-sm">${this.currentLanguage === 'en' ? 'No.' : 'Nº'}</span></th><th style="width: 45%;">${this.t('thName')}</th><th style="width: 20%; text-align: center;"><span class="th-lg">${this.t('thScore')}</span><span class="th-sm">${this.currentLanguage === 'en' ? 'Score' : 'Nota'}</span></th></tr></thead><tbody>`;
 
                         categoryResults.forEach((item, idx) => {
                             const position = 1 + categoryResults.filter(o => Math.round(o.score * 100) > Math.round(item.score * 100)).length;
@@ -2966,6 +3039,8 @@ Fuengirola · 8 de octubre de 2026</p>
 
                             if (position === 1) {
                                 rowClass = 'rank-gold';
+                            } else if (this.isSingle(cat.id)) {
+                                rowClass = '';
                             } else if (position === 2) {
                                 rowClass = 'rank-silver';
                             } else if (position === 3) {
@@ -2975,10 +3050,10 @@ Fuengirola · 8 de octubre de 2026</p>
 
                             html += `<tr class="${rowClass}">
                                 <td style="font-weight: 700; font-size: 1.1rem; text-align: center;">
-                                    ${this.currentLanguage === 'en' ? position + ([,'st','nd','rd'][position] || 'th') : position + 'º'}
+                                    ${this.currentLanguage === 'en' ? position + ([,'st','nd','rd'][position] || 'th') : position + 'º'}${(this.isSingle(cat.id) && position === 1) ? (this.currentLanguage === 'en' ? ' - Winner' : ' - Ganador/a') : ''}
                                 </td>
                                 <td style="font-weight: 600; color: var(--primary); text-align: center;">${item.dorsal}</td>
-                                <td><strong>${item.nombre}</strong></td>
+                                <td><strong>${item.nombre}</strong>${this.breedLine(item.breed)}</td>
                                 <td style="font-weight: 700; font-size: 1.1rem; color: var(--primary); text-align: center;">${item.score.toFixed(2)}/10</td>
                             </tr>`;
                         });
@@ -3026,7 +3101,8 @@ Fuengirola · 8 de octubre de 2026</p>
             addParticipant() {
                 const num = document.getElementById('newParticipantNum').value.trim();
                 const name = document.getElementById('newParticipantName').value.trim();
-                const horse = document.getElementById('newParticipantHorse').value.trim();
+                const horse = '';
+                const breed = (document.getElementById('newParticipantBreed').value || '').trim();
                 const category = document.getElementById('newParticipantCategory').value;
 
                 if (!num || !name || !category) {
@@ -3053,7 +3129,7 @@ Fuengirola · 8 de octubre de 2026</p>
                     counter++;
                 }
 
-                const newP = { id: num, name: name, category: category, username: username,
+                const newP = { id: num, name: name, category: category, username: username, breed: breed,
                                scores: null, strongPoints: '', improvementPoints: '', evaluated: false };
                 const addBtn = document.querySelector('[onclick="app.addParticipant()"]');
                 if (addBtn) addBtn.disabled = true;
@@ -3072,7 +3148,7 @@ Fuengirola · 8 de octubre de 2026</p>
             afterParticipantAdded(username) {
                 document.getElementById('newParticipantNum').value = '';
                 document.getElementById('newParticipantName').value = '';
-                document.getElementById('newParticipantHorse').value = '';
+                document.getElementById('newParticipantBreed').value = '';
                 document.getElementById('newParticipantCategory').value = '';
 
                 this.notify('Participante añadido. Usuario: ' + username, 2500);
@@ -3130,7 +3206,7 @@ Fuengirola · 8 de octubre de 2026</p>
                     return;
                 }
 
-                let html = '<table class="ranking-table" style="width: 100%;"><thead><tr><th>Dorsal</th><th>Nombre</th><th>Usuario</th><th>Contraseña</th><th>Acción</th></tr></thead><tbody>';
+                let html = '<div style="overflow-x: auto;"><table class="ranking-table" style="width: 100%;"><thead><tr><th>Dorsal</th><th>Nombre</th><th>Raza</th><th>Usuario</th><th>Contraseña</th><th>Acción</th></tr></thead><tbody>';
 
                 this.participants.forEach(p => {
                     const username = p.username || 'N/A';
@@ -3140,6 +3216,7 @@ Fuengirola · 8 de octubre de 2026</p>
                     html += `<tr>
                         <td><strong>${p.id}</strong></td>
                         <td>${p.name}</td>
+                        <td>${p.breed ? this.esc(p.breed) : '<span style="color: var(--text-light);">Sin indicar</span>'} <button type="button" onclick="app.editBreed('${p.id}')" style="background: none; border: 1px solid var(--border); border-radius: 6px; padding: 0.15rem 0.5rem; font-size: 0.75rem; cursor: pointer; color: var(--primary);">Editar</button></td>
                         <td><code style="background: rgba(45, 80, 22, 0.1); padding: 0.35rem 0.75rem; border-radius: 4px; font-size: 0.9rem; font-weight: 600;">${username}</code></td>
                         <td><code style="background: rgba(212, 175, 55, 0.1); padding: 0.35rem 0.75rem; border-radius: 4px; font-size: 0.9rem; font-weight: 600;">${password}</code></td>
                         <td style="white-space: nowrap;">
@@ -3149,7 +3226,7 @@ Fuengirola · 8 de octubre de 2026</p>
                     </tr>`;
                 });
 
-                html += '</tbody></table>';
+                html += '</tbody></table></div>';
                 tableContainer.innerHTML = html;
             },
 
@@ -3267,11 +3344,11 @@ Fuengirola · 8 de octubre de 2026</p>
                 let html = '';
                 this.CATEGORIES.forEach(cat => {
                     const inCat = participants.filter(p => p.category === cat.id);
-                    const rows = inCat.map(p => ({ dorsal: p.id, nombre: p.name, score: this.getFinalScore(p) }));
+                    const rows = inCat.map(p => ({ dorsal: p.id, nombre: p.name, breed: p.breed, score: this.getFinalScore(p) }));
                     const done = rows.filter(r => r.score > 0).sort((a, b) => b.score - a.score);
                     const pending = rows.filter(r => r.score === 0).sort((a, b) => parseInt(a.dorsal) - parseInt(b.dorsal));
 
-                    html += `<div style="margin-bottom: 2rem; padding: 1.5rem; background: white; border-radius: var(--radius); box-shadow: var(--shadow-sm); border-top: 4px solid var(--secondary);">
+                    html += `<div class="rank-card" style="margin-bottom: 2rem; padding: 1.5rem; background: white; border-radius: var(--radius); box-shadow: var(--shadow-sm); border-top: 4px solid var(--secondary);">
                         <div style="display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem;">
                             <h4 style="color: var(--primary); margin: 0; font-size: 1.15rem;">${cat.name}</h4>
                             <small style="color: var(--text-light); font-weight: 600;">${done.length} de ${inCat.length} evaluados</small>
@@ -3280,16 +3357,16 @@ Fuengirola · 8 de octubre de 2026</p>
                     if (inCat.length === 0) {
                         html += '<p style="color: var(--text-light); margin: 0;">Sin participantes en esta categoría</p>';
                     } else {
-                        html += '<table class="ranking-table"><thead><tr><th style="width: 22%;">Posición</th><th style="width: 15%;">Dorsal</th><th>Participante</th><th style="width: 22%; text-align: center;">Puntuación</th></tr></thead><tbody>';
+                        html += '<table class="ranking-table"><thead><tr><th style="width: 22%;"><span class="th-lg">Posición</span><span class="th-sm">Pos.</span></th><th style="width: 15%;"><span class="th-lg">Dorsal</span><span class="th-sm">Nº</span></th><th>Participante</th><th style="width: 22%; text-align: center;"><span class="th-lg">Puntuación</span><span class="th-sm">Nota</span></th></tr></thead><tbody>';
 
                         done.forEach(item => {
                             const pos = 1 + done.filter(o => Math.round(o.score * 100) > Math.round(item.score * 100)).length;
-                            const rowClass = pos === 1 ? 'rank-gold' : pos === 2 ? 'rank-silver' : pos === 3 ? 'rank-bronze' : '';
+                            const rowClass = pos === 1 ? 'rank-gold' : this.isSingle(cat.id) ? '' : pos === 2 ? 'rank-silver' : pos === 3 ? 'rank-bronze' : '';
                             const label = (cat.single && pos === 1) ? '1º - Ganador/a' : pos + 'º';
                             html += `<tr class="${rowClass}">
                                 <td style="font-weight: 700;">${label}</td>
                                 <td style="font-weight: 600; color: var(--primary);">${item.dorsal}</td>
-                                <td><strong>${item.nombre}</strong></td>
+                                <td><strong>${item.nombre}</strong>${this.breedLine(item.breed)}</td>
                                 <td style="font-weight: 700; color: var(--primary); text-align: center;">${item.score.toFixed(2)}</td>
                             </tr>`;
                         });
@@ -3298,7 +3375,7 @@ Fuengirola · 8 de octubre de 2026</p>
                             html += `<tr style="color: var(--text-light);">
                                 <td>-</td>
                                 <td style="font-weight: 600;">${item.dorsal}</td>
-                                <td>${item.nombre}</td>
+                                <td>${item.nombre}${this.breedLine(item.breed)}</td>
                                 <td style="text-align: center; font-style: italic;">Pendiente</td>
                             </tr>`;
                         });
@@ -3352,7 +3429,7 @@ Fuengirola · 8 de octubre de 2026</p>
                     const score = this.getFinalScore(p);
                     html += `<tr>
                         <td style="font-weight: 600; color: var(--primary);">${p.id}</td>
-                        <td>${p.name}</td>
+                        <td>${p.name}${this.breedLine(p.breed)}</td>
                         <td>${catName(p.category)}</td>
                         <td style="color: ${score > 0 ? 'var(--success)' : 'var(--warning)'}; font-weight: 600;">${score > 0 ? 'Completa' : 'Pendiente'}</td>
                         <td style="font-weight: 700; color: var(--primary);">${score > 0 ? score.toFixed(2) : '-'}</td>
